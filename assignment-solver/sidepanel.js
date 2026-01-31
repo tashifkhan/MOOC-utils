@@ -152,11 +152,19 @@ async function handleSolve() {
 		const imageCount = pageData.images?.length || 0;
 		const ssCount = screenshots.length;
 		if (ssCount > 0 || imageCount > 0) {
-			elements.progressTitle.textContent = `Getting answers from AI (${ssCount} screenshots, ${imageCount} images)...`;
+			elements.progressTitle.textContent = `Analyzing content (${ssCount} screenshots, ${imageCount} images)...`;
 		} else {
-			elements.progressTitle.textContent = "Getting answers from AI...";
+			elements.progressTitle.textContent = "Analyzing page content...";
 		}
-		setStatus("AI is solving...", "loading");
+
+		// Set indeterminate state by hiding specific count or showing animation
+		if (elements.progressCount) elements.progressCount.style.display = "none";
+		if (elements.progressFill) {
+			elements.progressFill.style.width = "100%";
+			elements.progressFill.classList.add("indeterminate");
+		}
+
+		setStatus("AI is analyzing...", "loading");
 
 		extraction = await Gemini.extractAndAnswer(
 			apiKey,
@@ -176,6 +184,17 @@ async function handleSolve() {
 			extraction.confirm_submit_button_ids || pageData.confirmButtonIds;
 
 		const questionCount = extraction.questions?.length || 0;
+
+		// Restore progress bar state
+		if (elements.progressCount) {
+			elements.progressCount.style.display = "block";
+			elements.progressCount.textContent = `0/${questionCount}`;
+		}
+		if (elements.progressFill) {
+			elements.progressFill.classList.remove("indeterminate");
+			elements.progressFill.style.width = "0%";
+		}
+
 		setProgress(0, questionCount);
 		markStepDone("answer");
 
@@ -196,16 +215,16 @@ async function handleSolve() {
 
 			await submitAssignment(extraction.submit_button_id);
 			markStepDone("submit");
-			setStatus("✅ Assignment submitted!");
+			setStatus("Assignment submitted!");
 		} else {
-			setStatus("✅ Answers filled - review and submit manually");
+			setStatus("Answers filled - review and submit manually");
 		}
 
 		// Show results
 		showResults(extraction.questions);
 	} catch (error) {
 		console.error("Solve failed:", error);
-		setStatus(`❌ Error: ${error.message}`, "error");
+		setStatus(`Error: ${error.message}`, "error");
 		setStep("extract", "error");
 	} finally {
 		isProcessing = false;
