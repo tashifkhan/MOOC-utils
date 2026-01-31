@@ -1,0 +1,42 @@
+{
+	"manifest_version": 3,
+	"name": "NPTEL Assignment Solver",
+	"version": "1.0.0",
+	"description": "Extract NPTEL assignment questions and get AI-powered study hints",
+	"permissions": ["activeTab", "tabs", "storage", "sidePanel", "scripting"],
+	"host_permissions": [
+		"<all_urls>",
+		"https://*.nptel.ac.in/*",
+		"https://onlinecourses.nptel.ac.in/*",
+		"https://generativelanguage.googleapis.com/*"
+	],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"https://*.nptel.ac.in/*",
+				"https://onlinecourses.nptel.ac.in/*"
+			],
+			"js": ["content.js"],
+			"run_at": "document_idle"
+		}
+	],
+	"side_panel": {
+		"default_path": "sidepanel.html"
+	},
+	"action": {
+		"default_icon": {
+			"16": "icon16.png",
+			"48": "icon48.png",
+			"128": "icon128.png"
+		},
+		"default_title": "NPTEL Assignment Solver"
+	},
+	"icons": {
+		"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
+	}
+}

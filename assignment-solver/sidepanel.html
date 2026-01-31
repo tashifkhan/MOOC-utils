@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPTEL Assignment Solver</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title">
+        <span class="header-icon">🚀</span>
+        NPTEL Auto-Solver
+      </h1>
+      <button class="btn-icon" id="settingsBtn" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+      <span class="status-dot"></span>
+      <span class="status-text">Ready - Click to solve assignment</span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- ONE CLICK SOLVE Button -->
+      <div class="solve-section">
+        <button class="btn btn-solve" id="solveBtn">
+          <div class="solve-icon">⚡</div>
+          <div class="solve-text">
+            <span class="solve-title">Solve Assignment</span>
+            <span class="solve-subtitle">Extract → Answer → Fill → Submit</span>
+          </div>
+        </button>
+        
+        <div class="auto-submit-toggle">
+          <label class="toggle-label">
+            <input type="checkbox" id="autoSubmitCheckbox" checked>
+            <span>Auto-submit after filling</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div class="progress-section" id="progressSection" style="display: none;">
+        <div class="progress-header">
+          <span class="progress-title" id="progressTitle">Processing...</span>
+          <span class="progress-count" id="progressCount">0/0</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-steps" id="progressSteps">
+          <div class="step" data-step="extract">
+            <div class="step-icon">📄</div>
+            <div class="step-label">Extract</div>
+          </div>
+          <div class="step" data-step="answer">
+            <div class="step-icon">🧠</div>
+            <div class="step-label">Answer</div>
+          </div>
+          <div class="step" data-step="fill">
+            <div class="step-icon">✏️</div>
+            <div class="step-label">Fill</div>
+          </div>
+          <div class="step" data-step="submit">
+            <div class="step-icon">🚀</div>
+            <div class="step-label">Submit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div class="results-section" id="resultsSection" style="display: none;">
+        <div class="results-header">
+          <h3>📋 Results</h3>
+          <span class="results-count" id="resultsCount">0 questions</span>
+        </div>
+        <div class="results-list" id="resultsList"></div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">📝</div>
+        <p>Navigate to an NPTEL assignment page</p>
+        <span class="empty-hint">Then click "Solve Assignment" to auto-complete</span>
+      </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal" style="display: none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="btn-icon" id="closeSettingsBtn">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="apiKeyInput">Gemini API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="Enter your Gemini API key">
+            <span class="form-hint">Get your key from <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="saveSettingsBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+      <div class="loading-spinner"></div>
+      <p class="loading-text" id="loadingText">Processing...</p>
+    </div>
+  </div>
+
+  <script src="storage.js"></script>
+  <script src="gemini.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
