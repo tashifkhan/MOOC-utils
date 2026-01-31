@@ -455,7 +455,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0; /* Critical for flex scroll */
   padding: 0 20px 20px;
 }
 
