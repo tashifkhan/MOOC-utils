@@ -6,10 +6,18 @@ A Chrome extension that uses Google's Gemini AI to extract, analyze, and solve o
 
 - **AI-Powered Question Extraction**: Uses Gemini to parse page HTML and extract structured question data
 - **Multi-Format Support**: Handles single-choice (radio), multi-choice (checkbox), and fill-in-the-blank questions
+- **Image Support**: Handles image-based questions by sending the screenshot for entire assignment as well extracting the image from the questions and sending it to Gemini as well.
 - **Study Hints Mode**: Get explanations, elimination tips, and learning guidance without direct answers
 - **Auto-Solve Mode**: Automatically solve all questions, fill answers, and submit
 - **BYOK (Bring Your Own Key)**: Uses your own Gemini API key - no server, fully client-side
 - **Export Functionality**: Export extracted data to JSON for backup or analysis
+
+## Todo
+
+- [ ] Modularise the codebase a bit (this was just for testing and this works better than I expected)
+- [ ] Firefox Support
+- [ ] Modular Build System
+- [ ] Better UI maybe (this gemini generated one works fine ig but lets see)
 
 ## Installation
 
@@ -243,18 +251,15 @@ assignment-solver/
 
 ## Limitations
 
-- **Image-based questions**: Cannot analyze images in questions (notes this in hints)
-- **Complex interactions**: May not work with heavily dynamic/SPA pages
-- **Platform-specific**: Optimized for NPTEL-style pages, may need adjustment for others
 - **Rate limits**: Free Gemini API has usage limits
 - **Accuracy**: AI answers are not guaranteed to be correct
 
 ## Security Considerations
 
 - API key is stored locally only
-- No data is sent to third-party servers
+- No data is sent to third-party servers (no stealling keys lol)
 - All processing happens client-side or via official Gemini API
-- Review the code before use in sensitive environments
+- Review the code if want to lol open sourced for a reason
 
 ## Development
 
@@ -276,15 +281,8 @@ const selectors = [
 2. Add handling in `showDetail()` function
 3. Add apply logic in `content.js` `applyAnswer()` function
 
-## License
 
-MIT License - Use at your own risk. This tool is for educational purposes.
+## Note
 
-## Disclaimer
-
-This extension is provided as-is for educational and research purposes. Users are responsible for:
-- Complying with their institution's academic integrity policies
-- Understanding that AI-generated answers may be incorrect
-- Using the tool ethically and responsibly
-
-The developers are not responsible for any academic consequences resulting from the use of this tool.
+Me not responsible for any academic consequences resulting from the use of this tool.
+(if you fail blame gemini swwetie)

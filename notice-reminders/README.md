@@ -8,6 +8,21 @@ A CLI tool to search for MOOC courses on Swayam/NPTEL and fetch their latest ann
 - **View Announcements**: Fetch and display announcements for selected courses.
 - **Interactive CLI**: Easy-to-use command line interface.
 
+
+## Todo
+
+- [ ] Telegram bot based notifications
+- [ ] SMTP based notifications (mails)
+- [ ] Add calendar events for exam as well assignment readlines
+- [ ] Send Notifications for upcoming assignments and exams (reminders)
+
+
+## Infra Todo
+
+- [ ] Cron jobs
+- [ ] Database lol
+- [ ] User registeration and flow
+
 ## Prerequisites
 
 - Python 3.12+
