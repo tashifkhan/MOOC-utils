@@ -11,7 +11,8 @@
 		"https://generativelanguage.googleapis.com/*"
 	],
 	"background": {
-		"service_worker": "background.js"
+		"service_worker": "src/background/index.js",
+		"type": "module"
 	},
 	"content_scripts": [
 		{
@@ -28,15 +29,15 @@
 	},
 	"action": {
 		"default_icon": {
-			"16": "icon16.png",
-			"48": "icon48.png",
-			"128": "icon128.png"
+			"16": "icons/icon16.png",
+			"48": "icons/icon48.png",
+			"128": "icons/icon128.png"
 		},
 		"default_title": "NPTEL Assignment Solver"
 	},
 	"icons": {
-		"16": "icon16.png",
-		"48": "icon48.png",
-		"128": "icon128.png"
+		"16": "icons/icon16.png",
+		"48": "icons/icon48.png",
+		"128": "icons/icon128.png"
 	}
 }
