@@ -16,8 +16,8 @@ A browser extension that uses Google's Gemini AI to extract, analyze, and solve 
 ## Todo
 
 - [x] Modularise the codebase a bit (this was just for testing and this works better than I expected)
-- [ ] Firefox Support
-- [ ] Modular Build System
+- [x] Firefox Support
+- [x] Modular Build System
 - [ ] Add Gemini Model Selector
 - [ ] Better UI maybe (this gemini generated one works fine ig but lets see)
 
