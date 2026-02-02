@@ -4,9 +4,11 @@
 
 import { createLogger } from "../core/logger.js";
 import { MESSAGE_TYPES } from "../core/messages.js";
-import { createRuntimeAdapter } from "../platform/chrome-runtime.js";
-import { createTabsAdapter } from "../platform/chrome-tabs.js";
-import { createScriptingAdapter } from "../platform/chrome-scripting.js";
+import { browser } from "../platform/browser.js";
+import { createRuntimeAdapter } from "../platform/runtime.js";
+import { createTabsAdapter } from "../platform/tabs.js";
+import { createScriptingAdapter } from "../platform/scripting.js";
+import { createPanelAdapter } from "../platform/panel.js";
 import { createGeminiService } from "../services/gemini/index.js";
 import { createScreenshotService } from "./screenshot.js";
 import { createExtractionHandler } from "./handlers/extraction.js";
@@ -22,6 +24,7 @@ const logger = createLogger("Background");
 const runtimeAdapter = createRuntimeAdapter();
 const tabsAdapter = createTabsAdapter();
 const scriptingAdapter = createScriptingAdapter();
+const panelAdapter = createPanelAdapter();
 
 logger.log("Initializing background service worker");
 
@@ -66,15 +69,21 @@ const handlers = {
 
 // Create and register message router
 const messageRouter = createMessageRouter(handlers, logger);
-chrome.runtime.onMessage.addListener(messageRouter);
+runtimeAdapter.onMessage(messageRouter);
 
 // Set up extension icon click
-chrome.action.onClicked.addListener((tab) => {
-	logger.log(`Extension icon clicked on tab: ${tab.id}`);
-	chrome.sidePanel.open({ tabId: tab.id });
-});
+if (browser.action && browser.action.onClicked) {
+	browser.action.onClicked.addListener(async (tab) => {
+		logger.log(`Extension icon clicked on tab: ${tab.id}`);
+		try {
+			await panelAdapter.open({ tabId: tab.id });
+		} catch (error) {
+			logger.error("Failed to open panel:", error);
+		}
+	});
+}
 
-// Enable side panel for NPTEL pages
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+// Set up panel behavior (Chrome only)
+panelAdapter.setPanelBehavior({ openPanelOnActionClick: true });
 
 logger.log("Background service worker initialized");

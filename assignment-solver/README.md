@@ -1,6 +1,6 @@
-# Assignment Solver - Chrome Extension
+# Assignment Solver - Browser Extension
 
-A Chrome extension that uses Google's Gemini AI to extract, analyze, and solve online assignment questions. Built for educational platforms like NPTEL, Coursera, and similar MOOC platforms.
+A browser extension that uses Google's Gemini AI to extract, analyze, and solve online assignment questions. Built for educational platforms like NPTEL, Coursera, and similar MOOC platforms. Supports both Chrome and Firefox.
 
 ## Features
 
@@ -11,6 +11,7 @@ A Chrome extension that uses Google's Gemini AI to extract, analyze, and solve o
 - **Auto-Solve Mode**: Automatically solve all questions, fill answers, and submit
 - **BYOK (Bring Your Own Key)**: Uses your own Gemini API key - no server, fully client-side
 - **Export Functionality**: Export extracted data to JSON for backup or analysis
+- **Cross-Browser**: Works on both Chrome and Firefox
 
 ## Todo
 
@@ -20,31 +21,72 @@ A Chrome extension that uses Google's Gemini AI to extract, analyze, and solve o
 - [ ] Add Gemini Model Selector
 - [ ] Better UI maybe (this gemini generated one works fine ig but lets see)
 
+## Prerequisites
+
+- [Bun](https://bun.sh/) package manager
+- Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
+- Chrome (version 116+) or Firefox (version 121+)
+
 ## Installation
 
-### Prerequisites
-- Google Chrome browser (version 116+)
-- Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
+### 1. Clone and Setup
 
-### Steps
+```bash
+git clone <repository-url>
+cd assignment-solver
+bun install  # Install dependencies
+```
 
-1. **Download/Clone the extension**
-   ```bash
-   git clone <repository-url>
-   cd assignment-solver
-   ```
+### 2. Build the Extension
 
-2. **Load in Chrome**
-   - Open Chrome and navigate to `chrome://extensions/`
-   - Enable **Developer mode** (toggle in top-right corner)
-   - Click **Load unpacked**
-   - Select the `assignment-solver` folder
+```bash
+# Build for both browsers
+bun run build
 
-3. **Configure API Key**
-   - Click the extension icon to open the side panel
-   - Click **Settings** button
-   - Enter your Gemini API key
-   - Click **Save Key**
+# Or build individually
+bun run build:chrome    # Build Chrome extension
+bun run build:firefox   # Build Firefox extension
+```
+
+### 3. Load in Browser
+
+**Chrome:**
+- Open Chrome and navigate to `chrome://extensions/`
+- Enable **Developer mode** (toggle in top-right corner)
+- Click **Load unpacked**
+- Select the `dist/chrome/` folder
+
+**Firefox:**
+- Open Firefox and navigate to `about:debugging`
+- Click **This Firefox**
+- Click **Load Temporary Add-on**
+- Select any file from the `dist/firefox/` folder (e.g., `manifest.json`)
+
+### 4. Configure API Key
+
+- Click the extension icon to open the side panel
+- Click **Settings** button
+- Enter your Gemini API key
+- Click **Save Key**
+
+## Development
+
+### Watch Mode (Auto-rebuild on changes)
+
+```bash
+# For Chrome
+bun run dev:chrome
+
+# For Firefox
+bun run dev:firefox
+```
+
+### Lint & Format
+
+```bash
+bun run lint      # Run ESLint
+bun run format    # Run Prettier
+```
 
 ## Usage
 
@@ -52,8 +94,13 @@ A Chrome extension that uses Google's Gemini AI to extract, analyze, and solve o
 
 1. **Navigate** to an assignment page on your educational platform
 2. **Open** the extension by clicking its icon (opens side panel)
-3. **Extract** questions by clicking "Extract Questions (via Gemini)"
-4. **Choose** your mode:
+3. **Click** "Solve Assignment" to automatically extract, analyze, and solve
+4. Review results and confirm auto-submit (if enabled)
+
+### Manual Control
+
+1. **Extract** questions by clicking "Extract Questions (via Gemini)"
+2. **Choose** your mode:
    - **Manual Mode**: Click individual questions, get hints, select answers, apply one by one
    - **Auto Mode**: Click "Solve All + Submit" to automatically solve and submit everything
 
@@ -90,19 +137,24 @@ A Chrome extension that uses Google's Gemini AI to extract, analyze, and solve o
 | Multi Choice | Checkbox questions | Checks all correct options, unchecks wrong ones |
 | Fill-in-the-Blank | Text/number input fields | Types the answer and triggers input events |
 
-## File Structure
+## Project Structure
 
 ```
 assignment-solver/
-├── manifest.json      # Extension configuration
-├── background.js      # Service worker for side panel
-├── content.js         # Page interaction script
-├── sidepanel.html     # Side panel UI
-├── sidepanel.js       # Main logic and Gemini integration
-├── icons/
-│   ├── icon16.png     # Toolbar icon
-│   └── icon48.png     # Extension icon
-└── README.md          # This file
+├── src/
+│   ├── core/              # Shared types, messages, utilities
+│   ├── platform/          # Browser API adapters (cross-browser)
+│   ├── services/          # Business logic (Gemini, storage)
+│   ├── background/        # Service worker handlers
+│   ├── content/           # Content script (DOM interaction)
+│   └── ui/                # Side panel UI
+├── public/                # Static assets (HTML, CSS, icons)
+├── dist/                  # Build output
+│   ├── chrome/            # Chrome build
+│   └── firefox/           # Firefox build
+├── manifest.config.js     # Dynamic manifest generation
+├── vite.config.js         # Vite build configuration
+└── package.json           # Dependencies and scripts
 ```
 
 ## Technical Details
@@ -112,16 +164,22 @@ assignment-solver/
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
 │   Side Panel    │────▶│  Content Script  │────▶│   Assignment    │
-│  (sidepanel.js) │     │   (content.js)   │     │      Page       │
+│  (src/ui/)      │     │   (src/content/) │     │      Page       │
 └────────┬────────┘     └──────────────────┘     └─────────────────┘
          │
          │ API Calls
          ▼
 ┌─────────────────┐
 │   Gemini API    │
-│ (gemini-2.5-flash)
+│ (gemini-2.5-pro)|
 └─────────────────┘
 ```
+
+### Build System
+
+- **Vite**: Modern build tool with ES modules support
+- **webextension-polyfill**: Cross-browser API compatibility
+- **Dynamic Manifests**: Separate manifests for Chrome (`sidePanel`) and Firefox (`sidebar_action`)
 
 ### Data Flow
 
@@ -179,34 +237,16 @@ assignment-solver/
 }
 ```
 
-#### Export Format
-```json
-{
-  "submut_button_id": "submitbutton",
-  "data": [
-    {
-      "question_id": "Q1",
-      "question": "Question text...",
-      "answer_text": "for fill blanks",
-      "anwser_option_id": "opt-1 or ['opt-1', 'opt-2'] for multi"
-    }
-  ]
-}
-```
-
 ## Configuration
 
 ### API Key Storage
-- Stored locally in `chrome.storage.local`
+- Stored locally in `browser.storage.local` (via polyfill)
 - Never sent to any server except Google's Gemini API
 - Persists across browser sessions
 
 ### Model Selection
 - Default: `gemini-2.5-pro`
-- Can be changed in `sidepanel.js` (line 8):
-  ```javascript
-  const GEMINI_MODEL = "gemini-2.5-pro";
-  ```
+- Can be changed in `src/services/gemini/index.js`
 
 ### Rate Limiting
 - 500ms delay between API calls for answers
@@ -247,7 +287,7 @@ assignment-solver/
 | `activeTab` | Access current tab to extract/modify content |
 | `scripting` | Inject content script for page interaction |
 | `storage` | Store API key locally |
-| `sidePanel` | Display the extension UI |
+| `sidePanel` (Chrome) / `sidebarAction` (Firefox) | Display the extension UI |
 | `host_permissions` (googleapis.com) | Make API calls to Gemini |
 
 ## Limitations
@@ -258,30 +298,29 @@ assignment-solver/
 ## Security Considerations
 
 - API key is stored locally only
-- No data is sent to third-party servers (no stealling keys lol)
+- No data is sent to third-party servers
 - All processing happens client-side or via official Gemini API
-- Review the code if want to lol open sourced for a reason
+- Review the code - it's open source for a reason
 
 ## Development
 
 ### Modifying Selectors
-If the extension doesn't work on your platform, you may need to adjust selectors in `content.js`:
+If the extension doesn't work on your platform, you may need to adjust selectors in `src/content/extractor.js`:
 
 ```javascript
 // Update these selectors for your platform
 const selectors = [
-  '.gcb-assessment-content',
+  '.assessment-contents',
   '.qt-assessment',
-  '#assessment-main',
+  '.gcb-assessment-contents',
   // Add your platform's selectors here
 ];
 ```
 
 ### Adding New Question Types
-1. Update `EXTRACTION_SCHEMA` in `sidepanel.js`
-2. Add handling in `showDetail()` function
-3. Add apply logic in `content.js` `applyAnswer()` function
-
+1. Update extraction schema in `src/services/gemini/schema.js`
+2. Add handling in `src/content/applicator.js`
+3. Update UI controllers in `src/ui/controllers/`
 
 ## Note
 

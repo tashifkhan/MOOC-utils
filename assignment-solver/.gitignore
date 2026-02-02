@@ -44,3 +44,7 @@ Thumbs.db
 
 # TypeScript specific (if applicable)
 *.tsbuildinfo
+
+# Backup files
+*.backup
+content.js.backup

@@ -23,13 +23,14 @@
 │  │  └─ state.js (UI state)                                          │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────┘
-                            ↕ (Messages)
+                             ↕ (Messages via webextension-polyfill)
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                       Background Service Worker                         │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
 │  │ src/background/index.js (Entry Point - DI Setup)                │  │
 │  │  ├─ Creates: TabsAdapter, ScriptingAdapter, RuntimeAdapter      │  │
 │  │  ├─ Wires: ScreenshotService, GeminiService                     │  │
+│  │  ├─ Creates: PanelAdapter (cross-browser panel support)         │  │
 │  │  └─ Registers: Message Router with Handlers                     │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
@@ -45,14 +46,15 @@
 │  │  └─ AnswerHandler → forwards to content script                  │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────┘
-                            ↕ (Messages)
+                             ↕ (Messages via webextension-polyfill)
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         Content Script (DOM Layer)                      │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ content.js (Internal Factories)                                  │  │
-│  │  ├─ createLogger() → Logger with [NPTEL Solver] prefix           │  │
-│  │  ├─ createExtractor() → HTML extraction logic                    │  │
-│  │  └─ createApplicator() → Answer application logic                │  │
+│  │ src/content/index.js (Entry Point)                               │  │
+│  │  ├─ Imports: browser polyfill                                    │  │
+│  │  ├─ Creates: Logger with [Content] prefix                        │  │
+│  │  ├─ Creates: Extractor (HTML extraction logic)                   │  │
+│  │  └─ Creates: Applicator (Answer application logic)               │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
 │  │ Extraction → Returns: PageData                                   │  │
@@ -68,11 +70,11 @@
 │  │  └─ Types text (fill_blank)                                      │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────┘
-                                ↕
-                          ┌──────────────┐
-                          │ Gemini API   │
-                          │ (Direct Call)│
-                          └──────────────┘
+                                 ↕
+                           ┌──────────────┐
+                           │ Gemini API   │
+                           │ (Direct Call)│
+                           └──────────────┘
 ```
 
 ## Complete Workflow: Solving an Assignment
@@ -166,11 +168,12 @@
 │  └────────────────────┘                                       │
 │             ↓                                                   │
 ├─────────────────────────────────────────────────────────────────┤
-│                    Chrome APIs (Real Implementation)            │
+│              webextension-polyfill (Cross-Browser)              │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  chrome.runtime      chrome.storage.local                      │
-│  chrome.tabs         chrome.scripting                          │
+│  browser.runtime      browser.storage.local                      │
+│  browser.tabs         browser.scripting                          │
+│  browser.sidePanel    browser.sidebarAction (Firefox)            │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -220,6 +223,25 @@ User clicks "Solve"        (message router)          (msg handler)
     (questions, answers, confidence)
 ```
 
+## Cross-Browser Panel Handling
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Panel Adapter                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Chrome                              Firefox                │
+│  ───────                             ───────                │
+│                                                             │
+│  browser.sidePanel.open()            browser.sidebarAction  │
+│  ({ tabId })                         .open()                │
+│                                                             │
+│  browser.sidePanel                   N/A (no equivalent)    │
+│  .setPanelBehavior()                                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## Dependency Flow for Services
 
 ```
@@ -227,14 +249,18 @@ SolveController
 │
 ├─ storage (StorageService)
 │  └─ storage adapter (StorageAdapter)
-│     └─ chrome.storage.local
+│     └─ browser.storage.local (via polyfill)
 │
 ├─ gemini (GeminiService)
 │  └─ runtime adapter (RuntimeAdapter)
-│     └─ chrome.runtime.sendMessage
+│     └─ browser.runtime.sendMessage (via polyfill)
 │
 ├─ runtime (RuntimeAdapter)
-│  └─ chrome.runtime.sendMessage
+│  └─ browser.runtime.sendMessage (via polyfill)
+│
+├─ panel (PanelAdapter)
+│  ├─ Chrome: browser.sidePanel
+│  └─ Firefox: browser.sidebarAction
 │
 └─ progress (ProgressController)
    └─ DOM elements
@@ -258,4 +284,23 @@ Side Effects:
 ├─ Storage updates via StorageService
 ├─ DOM updates via Controller methods
 └─ Message sending via RuntimeAdapter
+```
+
+## Build and Development Flow
+
+```
+Development
+│
+├─ Watch Mode
+│  ├─ bun run dev:chrome
+│  └─ bun run dev:firefox
+│     └─ Vite watches files, rebuilds on change
+│
+└─ Production Build
+   ├─ bun run build:chrome → dist/chrome/
+   └─ bun run build:firefox → dist/firefox/
+      ├─ Vite bundles JS
+      ├─ Generates manifest.json
+      ├─ Copies static assets from public/
+      └─ Output ready for browser loading
 ```

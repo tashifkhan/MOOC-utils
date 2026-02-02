@@ -1,9 +1,12 @@
 /**
- * @fileoverview Chrome Runtime API adapter for dependency injection
+ * @fileoverview Runtime API adapter for dependency injection
+ * Uses webextension-polyfill for cross-browser compatibility
  */
 
+import { browser } from "./browser.js";
+
 /**
- * Create a Chrome Runtime adapter
+ * Create a Runtime adapter
  * @returns {Object} Runtime adapter with sendMessage and onMessage methods
  */
 export function createRuntimeAdapter() {
@@ -14,15 +17,7 @@ export function createRuntimeAdapter() {
 		 * @returns {Promise<any>} Response promise
 		 */
 		sendMessage: (message) => {
-			return new Promise((resolve, reject) => {
-				chrome.runtime.sendMessage(message, (response) => {
-					if (chrome.runtime.lastError) {
-						reject(new Error(chrome.runtime.lastError.message));
-					} else {
-						resolve(response);
-					}
-				});
-			});
+			return browser.runtime.sendMessage(message);
 		},
 
 		/**
@@ -30,7 +25,7 @@ export function createRuntimeAdapter() {
 		 * @param {(message: Message, sender: any, sendResponse: Function) => void} listener - Message handler
 		 */
 		onMessage: (listener) => {
-			chrome.runtime.onMessage.addListener(listener);
+			browser.runtime.onMessage.addListener(listener);
 		},
 	};
 }

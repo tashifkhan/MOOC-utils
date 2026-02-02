@@ -3,8 +3,8 @@
  */
 
 import { createLogger } from "../core/logger.js";
-import { createRuntimeAdapter } from "../platform/chrome-runtime.js";
-import { createStorageAdapter } from "../platform/chrome-storage.js";
+import { createRuntimeAdapter } from "../platform/runtime.js";
+import { createStorageAdapter } from "../platform/storage.js";
 import { createStorageService } from "../services/storage/index.js";
 import { createGeminiService } from "../services/gemini/index.js";
 import { getElements } from "./elements.js";

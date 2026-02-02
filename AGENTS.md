@@ -2,18 +2,42 @@
 
 ## Context
 MOOC-utils provides tools for online course platforms:
-- `assignment-solver/`: Chrome extension for assignment assistance (Vanilla JS).
+- `assignment-solver/`: Chrome/Firefox extension for assignment assistance (Vanilla JS + Vite).
 - `notice-reminders/`: Course search & notification CLI (Python 3.12+).
 
 ## Build & Test Commands
 
-### Chrome Extension (`assignment-solver/`)
-**Setup**: Load `assignment-solver/` directory as an unpacked extension in `chrome://extensions`.
+### Browser Extension (`assignment-solver/`)
+**Package Manager**: Use `bun` (not npm).
+
+**Setup**:
+```bash
+cd assignment-solver
+bun install  # Install dependencies
+```
+
+**Build** (generates `dist/chrome/` and `dist/firefox/`):
+```bash
+bun run build           # Build both Chrome and Firefox
+bun run build:chrome    # Build Chrome only
+bun run build:firefox   # Build Firefox only
+```
+
+**Development** (watch mode):
+```bash
+bun run dev:chrome      # Watch and rebuild for Chrome
+bun run dev:firefox     # Watch and rebuild for Firefox
+```
+
 **Lint/Format**:
 ```bash
-npx eslint assignment-solver/**/*.js
-npx prettier --write assignment-solver/**/*.js
+bun run lint            # Run ESLint
+bun run format          # Run Prettier
 ```
+
+**Load Extension**:
+- Chrome: Load `dist/chrome/` as unpacked extension in `chrome://extensions`
+- Firefox: Load `dist/firefox/` via `about:debugging`
 
 ### Python Project (`notice-reminders/`)
 **Setup**:
@@ -36,14 +60,15 @@ pyright .      # Type check
 
 ## Code Style & Conventions
 
-### JavaScript (Chrome Extension)
+### JavaScript (Browser Extension)
 - **Format**: Tabs for indentation, double quotes, optional semicolons (be consistent).
 - **Naming**: `camelCase` (vars/funcs), `PascalCase` (classes/namespaces), `UPPER_CASE` (constants).
-- **Async**: Use `async/await` for Chrome APIs. Wrap `chrome.runtime.sendMessage` in Promises.
+- **Async**: Use `async/await` for browser APIs. Use `webextension-polyfill` for cross-browser compatibility.
 - **Logging**: Prefix logs with context: `console.log("[Background]", msg)`.
 - **Architecture**:
-    - `sidepanel.js` (UI) ↔ `background.js` (Router) ↔ `content.js` (DOM).
-    - Use `chrome.storage.local` for state.
+    - `src/ui/` (UI) ↔ `src/background/` (Router) ↔ `src/content/` (DOM).
+    - Use `browser.storage.local` (via polyfill) for state.
+    - Modular structure with dependency injection via factory functions.
 
 ### Python (notice-reminders)
 - **Format**: PEP 8, 4 spaces indent, double quotes (use `ruff` defaults).
@@ -64,6 +89,8 @@ pyright .      # Type check
 - **Message Passing**: UI -> Background -> Content -> Background -> UI.
 - **Gemini**: Use structured JSON schema for API responses.
 - **DOM**: Use specific selectors for NPTEL (`.qt-mc-question`, `.gcb-assessment-item`).
+- **Build System**: Vite with custom manifest generation for Chrome/Firefox targets.
+- **Cross-Browser**: Uses `webextension-polyfill` for unified API across Chrome and Firefox.
 
 ### Python Scraper
 - **Client**: `SwayamClient` class uses `httpx.AsyncClient`.

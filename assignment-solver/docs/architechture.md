@@ -1,6 +1,6 @@
 # NPTEL Assignment Solver - Architecture
 
-A modular Chrome extension for solving NPTEL assignments with AI-powered hints using dependency injection.
+A modular browser extension for solving NPTEL assignments with AI-powered hints using dependency injection. Supports both Chrome and Firefox.
 
 ## Architecture Overview
 
@@ -14,11 +14,13 @@ assignment-solver/
 │   │   ├── logger.js              # Logger factory
 │   │   └── messages.js            # Message type constants
 │   │
-│   ├── platform/                  # Chrome API adapters (injectable)
-│   │   ├── chrome-runtime.js      # chrome.runtime adapter
-│   │   ├── chrome-storage.js      # chrome.storage adapter
-│   │   ├── chrome-tabs.js         # chrome.tabs adapter
-│   │   └── chrome-scripting.js    # chrome.scripting adapter
+│   ├── platform/                  # Browser API adapters (cross-browser)
+│   │   ├── browser.js             # webextension-polyfill wrapper
+│   │   ├── panel.js               # Side panel/sidebar abstraction
+│   │   ├── runtime.js             # browser.runtime adapter
+│   │   ├── storage.js             # browser.storage adapter
+│   │   ├── tabs.js                # browser.tabs adapter
+│   │   └── scripting.js           # browser.scripting adapter
 │   │
 │   ├── services/                  # Business logic layer
 │   │   ├── storage/
@@ -38,6 +40,12 @@ assignment-solver/
 │   │       ├── screenshot.js      # CAPTURE_FULL_PAGE handler
 │   │       └── answers.js         # APPLY_ANSWERS, SUBMIT handler
 │   │
+│   ├── content/                   # Content script (modular)
+│   │   ├── index.js               # Entry point
+│   │   ├── logger.js              # Logger factory
+│   │   ├── extractor.js           # HTML extraction logic
+│   │   └── applicator.js          # Answer application logic
+│   │
 │   └── ui/                        # Side panel UI
 │       ├── index.js               # Entry point with DI setup
 │       ├── elements.js            # DOM element bindings
@@ -48,11 +56,18 @@ assignment-solver/
 │           ├── settings.js        # Settings modal controller
 │           └── progress.js        # Progress display controller
 │
-├── content.js                     # Content script (no ES modules)
-├── manifest.json                  # Extension manifest
-├── sidepanel.html                 # UI template
-├── styles.css                     # Styling
-└── icons/                         # Extension icons
+├── public/                        # Static assets
+│   ├── sidepanel.html             # UI template
+│   ├── styles.css                 # Styling
+│   └── icons/                     # Extension icons
+│
+├── dist/                          # Build output
+│   ├── chrome/                    # Chrome build
+│   └── firefox/                   # Firefox build
+│
+├── manifest.config.js             # Dynamic manifest generation
+├── vite.config.js                 # Vite build configuration
+└── package.json                   # Dependencies (use bun)
 ```
 
 ## Dependency Injection Pattern
@@ -80,7 +95,7 @@ export function createStorageService({ storage, logger = null }) {
 
 ```javascript
 // src/ui/index.js - Example wiring
-import { createStorageAdapter } from "../platform/chrome-storage.js";
+import { createStorageAdapter } from "../platform/storage.js";
 import { createStorageService } from "../services/storage/index.js";
 
 const storageAdapter = createStorageAdapter();
@@ -94,10 +109,11 @@ const storageService = createStorageService({
 
 ### 1. **Separation of Concerns**
 - **core/**: Pure utilities and type definitions
-- **platform/**: Chrome API adapters (no business logic)
-- **services/**: Business logic independent of Chrome APIs
+- **platform/**: Browser API adapters (no business logic)
+- **services/**: Business logic independent of browser APIs
 - **background/**: Message routing and handlers
 - **ui/**: Presentation layer and controllers
+- **content/**: DOM interaction (page context)
 
 ### 2. **Explicit Dependencies**
 All dependencies are passed as function parameters, making them:
@@ -108,11 +124,11 @@ All dependencies are passed as function parameters, making them:
 ### 3. **No Global State**
 Each factory returns a self-contained object with its own state. No global variables or singletons.
 
-### 4. **Chrome API Isolation**
-Platform adapters wrap Chrome APIs, so:
-- Services don't directly call `chrome.*`
+### 4. **Cross-Browser API Isolation**
+Platform adapters use `webextension-polyfill`:
+- Services don't directly call `chrome.*` or `browser.*`
 - Easy to create mock adapters for testing
-- Future support for other browsers possible
+- Unified API across Chrome and Firefox
 
 ## Message Flow
 
@@ -150,6 +166,44 @@ Parse response with Parser
 Return to side panel
 ```
 
+## Build System
+
+### Vite Configuration
+- **Bundler**: Vite for fast builds and ES modules support
+- **Polyfill**: webextension-polyfill for cross-browser compatibility
+- **Dynamic Manifests**: Separate manifests for Chrome and Firefox
+
+### Build Commands (use bun, not npm)
+
+```bash
+# Install dependencies
+bun install
+
+# Build for both browsers
+bun run build
+
+# Build for specific browser
+bun run build:chrome
+bun run build:firefox
+
+# Watch mode (development)
+bun run dev:chrome
+bun run dev:firefox
+```
+
+### Browser Differences
+
+**Chrome:**
+- Uses `sidePanel` API
+- Manifest includes `"side_panel"` key
+- Background: `"service_worker"`
+
+**Firefox:**
+- Uses `sidebarAction` API
+- Manifest includes `"sidebar_action"` key
+- Background: `"scripts"` array
+- Includes `browser_specific_settings.gecko.id`
+
 ## File Import Structure
 
 ### Background (ES Modules)
@@ -164,20 +218,30 @@ import { createStorageService } from "../services/storage/index.js";
 import { createSolveController } from "./controllers/solve.js";
 ```
 
-### Content Script (No ES Modules)
-Uses internal factory functions instead of imports:
+### Content Script (ES Modules - bundled by Vite)
 ```javascript
-function createLogger(prefix) { /* ... */ }
-function createExtractor(logger) { /* ... */ }
+import { browser } from "../platform/browser.js";
+import { createExtractor } from "./extractor.js";
+import { createApplicator } from "./applicator.js";
 ```
 
 ## Running the Extension
 
-1. Load in Chrome: `chrome://extensions` → Load unpacked → Select this directory
-2. Navigate to an NPTEL assignment page
-3. Click the extension icon
-4. Set your Gemini API key in settings
-5. Click "Solve Assignment"
+### Chrome
+1. Build: `bun run build:chrome`
+2. Load in Chrome: `chrome://extensions` → Load unpacked → Select `dist/chrome/`
+3. Navigate to an NPTEL assignment page
+4. Click the extension icon
+5. Set your Gemini API key in settings
+6. Click "Solve Assignment"
+
+### Firefox
+1. Build: `bun run build:firefox`
+2. Load in Firefox: `about:debugging` → Load Temporary Add-on → Select `dist/firefox/manifest.json`
+3. Navigate to an NPTEL assignment page
+4. Click the extension icon
+5. Set your Gemini API key in settings
+6. Click "Solve Assignment"
 
 ## Development Workflow
 
@@ -215,12 +279,14 @@ await service.saveApiKey("test-key");
 | `src/core/types.js` | JSDoc type definitions for IDE autocomplete |
 | `src/core/logger.js` | Logger factory with context prefixes |
 | `src/core/messages.js` | Message type constants and helpers |
-| `src/platform/chrome-*.js` | Chrome API adapters |
+| `src/platform/browser.js` | webextension-polyfill wrapper |
+| `src/platform/panel.js` | Cross-browser panel abstraction |
 | `src/services/gemini/schema.js` | Gemini API response schema |
 | `src/background/index.js` | Background DI container and initialization |
 | `src/ui/index.js` | Side panel DI container and initialization |
-| `content.js` | Content script (no modules due to Chrome limitations) |
-| `manifest.json` | Extension manifest with ES module support |
+| `src/content/index.js` | Content script entry point |
+| `manifest.config.js` | Dynamic manifest generation |
+| `vite.config.js` | Vite build configuration |
 
 ## Benefits of This Architecture
 
@@ -229,7 +295,8 @@ await service.saveApiKey("test-key");
 ✅ **Maintainable**: Clear separation of concerns  
 ✅ **Scalable**: Easy to add new features  
 ✅ **Type-safe**: JSDoc type hints for IDE support  
-✅ **No build step**: Uses native ES modules  
+✅ **Cross-browser**: Works on Chrome and Firefox  
+✅ **Modern build**: Vite with hot reload  
 ✅ **Dependency injection**: Explicit, flexible, and testable  
 
 ## Migration from Old Code
@@ -238,4 +305,6 @@ await service.saveApiKey("test-key");
 - `sidepanel.js` → `src/ui/controllers/solve.js` + `src/ui/index.js`
 - `gemini.js` → `src/services/gemini/`
 - `storage.js` → `src/services/storage/`
-- `content.js` → refactored with internal factories (no ES modules)
+- `content.js` → `src/content/` (modularized with ES modules)
+- `manifest.json` → `manifest.config.js` (dynamic generation)
+- `package.json` → uses **bun** instead of npm

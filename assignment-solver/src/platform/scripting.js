@@ -1,9 +1,12 @@
 /**
- * @fileoverview Chrome Scripting API adapter for dependency injection
+ * @fileoverview Scripting API adapter for dependency injection
+ * Uses webextension-polyfill for cross-browser compatibility
  */
 
+import { browser } from "./browser.js";
+
 /**
- * Create a Chrome Scripting adapter
+ * Create a Scripting adapter
  * @returns {Object} Scripting adapter with executeScript method
  */
 export function createScriptingAdapter() {
@@ -18,15 +21,7 @@ export function createScriptingAdapter() {
 		 * @returns {Promise<Array<{result: any}>>} Execution results
 		 */
 		executeScript: (options) => {
-			return new Promise((resolve, reject) => {
-				chrome.scripting.executeScript(options, (results) => {
-					if (chrome.runtime.lastError) {
-						reject(new Error(chrome.runtime.lastError.message));
-					} else {
-						resolve(results);
-					}
-				});
-			});
+			return browser.scripting.executeScript(options);
 		},
 	};
 }

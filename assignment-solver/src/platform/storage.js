@@ -1,9 +1,12 @@
 /**
- * @fileoverview Chrome Storage API adapter for dependency injection
+ * @fileoverview Storage API adapter for dependency injection
+ * Uses webextension-polyfill for cross-browser compatibility
  */
 
+import { browser } from "./browser.js";
+
 /**
- * Create a Chrome Storage adapter
+ * Create a Storage adapter
  * @returns {Object} Storage adapter with get, set, remove methods
  */
 export function createStorageAdapter() {
@@ -14,7 +17,7 @@ export function createStorageAdapter() {
 		 * @returns {Promise<Object>} Storage object
 		 */
 		get: (keys) => {
-			return chrome.storage.local.get(keys);
+			return browser.storage.local.get(keys);
 		},
 
 		/**
@@ -23,7 +26,7 @@ export function createStorageAdapter() {
 		 * @returns {Promise<void>}
 		 */
 		set: (data) => {
-			return chrome.storage.local.set(data);
+			return browser.storage.local.set(data);
 		},
 
 		/**
@@ -32,7 +35,7 @@ export function createStorageAdapter() {
 		 * @returns {Promise<void>}
 		 */
 		remove: (keys) => {
-			return chrome.storage.local.remove(keys);
+			return browser.storage.local.remove(keys);
 		},
 	};
 }
