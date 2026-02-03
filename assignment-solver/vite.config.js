@@ -28,32 +28,57 @@ function generateManifestPlugin(browser) {
 	};
 }
 
+// Plugin to transform sidepanel.html script path
+function transformHtmlPlugin() {
+	return {
+		name: "transform-html",
+		writeBundle(options) {
+			const htmlPath = path.join(options.dir, "sidepanel.html");
+			if (fs.existsSync(htmlPath)) {
+				let html = fs.readFileSync(htmlPath, "utf-8");
+				// Replace the dev script path with the built script path
+				html = html.replace(
+					/<script type="module" src="src\/ui\/index\.js"><\/script>/,
+					'<script type="module" src="sidepanel.js"></script>',
+				);
+				fs.writeFileSync(htmlPath, html);
+				console.log("Transformed sidepanel.html script path");
+			}
+		},
+	};
+}
+
 export default defineConfig(({ mode }) => {
 	const browser = getBrowser(mode);
 	const outDir = `dist/${browser}`;
 
+	const getInput = () => {
+		if (process.env.VITE_INPUT === "background") {
+			return { background: path.resolve(__dirname, "src/background/index.js") };
+		}
+		if (process.env.VITE_INPUT === "content") {
+			return { content: path.resolve(__dirname, "src/content/index.js") };
+		}
+		return { sidepanel: path.resolve(__dirname, "src/ui/index.js") };
+	};
+
+	const isScript =
+		process.env.VITE_INPUT === "background" ||
+		process.env.VITE_INPUT === "content";
+
 	return {
 		root: path.resolve(__dirname),
 		publicDir: "public",
+		plugins: [generateManifestPlugin(browser), transformHtmlPlugin()],
 		build: {
 			outDir,
-			emptyOutDir: true,
+			emptyOutDir: false,
 			rollupOptions: {
-				input: {
-					// Entry points for the extension
-					background: path.resolve(__dirname, "src/background/index.js"),
-					content: path.resolve(__dirname, "src/content/index.js"),
-					sidepanel: path.resolve(__dirname, "src/ui/index.js"),
-				},
+				input: getInput(),
 				output: {
-					entryFileNames: (chunkInfo) => {
-						// Preserve directory structure
-						if (chunkInfo.name === "background") return "background.js";
-						if (chunkInfo.name === "content") return "content.js";
-						if (chunkInfo.name === "sidepanel") return "sidepanel.js";
-						return "[name].js";
-					},
-					chunkFileNames: "chunks/[name]-[hash].js",
+					format: isScript ? "iife" : "esm",
+					entryFileNames: "[name].js",
+					inlineDynamicImports: isScript,
 					assetFileNames: (assetInfo) => {
 						if (assetInfo.name.endsWith(".css")) return "styles.css";
 						return "assets/[name]-[hash][extname]";
@@ -61,7 +86,6 @@ export default defineConfig(({ mode }) => {
 				},
 			},
 		},
-		plugins: [generateManifestPlugin(browser)],
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "src"),

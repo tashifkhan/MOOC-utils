@@ -34,40 +34,15 @@ export function generateManifest(browser) {
       "https://generativelanguage.googleapis.com/*",
     ],
     
-    background: {
-      type: "module",
-    },
+    background: {},
     
     content_scripts: [
       {
         matches: [
-          "https://*.nptel.ac.in/*",
           "https://onlinecourses.nptel.ac.in/*",
         ],
         js: ["content.js"],
         run_at: "document_idle",
-      },
-    ],
-    
-    action: {
-      default_icon: {
-        "16": "icons/icon16.png",
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png",
-      },
-      default_title: "NPTEL Assignment Solver",
-    },
-    
-    icons: {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png",
-    },
-    
-    web_accessible_resources: [
-      {
-        resources: ["styles.css"],
-        matches: ["https://*.nptel.ac.in/*", "https://onlinecourses.nptel.ac.in/*"],
       },
     ],
   };

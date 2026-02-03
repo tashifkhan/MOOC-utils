@@ -15,10 +15,10 @@ export function createGeminiHandler({ geminiService, logger = null }) {
 	return async function handleGeminiRequest(message, sender, sendResponse) {
 		try {
 			log("Handling GEMINI_REQUEST");
-			const { apiKey, payload } = message;
+			const { apiKey, payload, model } = message;
 
 			// Use direct API call from background worker
-			const response = await geminiService.directAPICall(apiKey, payload);
+			const response = await geminiService.directAPICall(apiKey, payload, model);
 			log("Gemini API response received");
 
 			sendResponse(response);

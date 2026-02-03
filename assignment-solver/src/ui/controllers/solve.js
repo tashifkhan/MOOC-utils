@@ -45,6 +45,8 @@ export function createSolveController({
 			if (state.getIsProcessing()) return;
 
 			const apiKey = await storage.getApiKey();
+			const prefs = await storage.getModelPreferences();
+
 			if (!apiKey) {
 				progress.setStatus("Please set your API key first", "error");
 				settings.show();
@@ -85,22 +87,15 @@ export function createSolveController({
 					// Continue without screenshots
 				}
 
-				progress.markStepDone("extract");
-
-				// Step 2: Get answers from Gemini
-				progress.setStep("answer", "active");
+				// Step 2a: Extract questions (Gemini)
 				const imageCount = pageData.images?.length || 0;
-				const ssCount = screenshots.length;
-				if (ssCount > 0 || imageCount > 0) {
-					elements.progressTitle.textContent = `Analyzing content (${ssCount} screenshots, ${imageCount} images)...`;
-				} else {
-					elements.progressTitle.textContent = "Analyzing page content...";
-				}
-
+				const screenshotCount = screenshots.length;
+				
+				progress.setStatus(`AI extraction (${imageCount} imgs, ${screenshotCount} screens)...`, "loading");
+				elements.progressTitle.textContent = `Extracting questions (${prefs.extractionModel})...`;
 				progress.setIndeterminate();
-				progress.setStatus("AI is analyzing...", "loading");
 
-				const extraction = await gemini.extractAndAnswer(
+				const extraction = await gemini.extract(
 					apiKey,
 					pageData.html,
 					{
@@ -109,17 +104,37 @@ export function createSolveController({
 					},
 					pageData.images || [],
 					screenshots,
+					prefs.extractionModel,
 				);
 
-				// Merge page info
-				extraction.submit_button_id =
-					extraction.submit_button_id || pageData.submitButtonId;
-				extraction.confirm_submit_button_ids =
-					extraction.confirm_submit_button_ids || pageData.confirmButtonIds;
+				progress.markStepDone("extract");
 
-				state.setExtraction(extraction);
+				// Step 2b: Solve questions (Gemini)
+				progress.setStep("answer", "active");
+				elements.progressTitle.textContent = `Solving questions (${prefs.solvingModel})...`;
+				progress.setStatus(`AI solving (${imageCount} imgs, ${screenshotCount} screens)...`, "loading");
 
-				const questionCount = extraction.questions?.length || 0;
+				const solvedExtraction = await gemini.solve(
+					apiKey,
+					extraction,
+					pageData.images || [],
+					screenshots,
+					prefs.solvingModel,
+				);
+
+				// Merge page info and solved answers
+				solvedExtraction.submit_button_id =
+					solvedExtraction.submit_button_id ||
+					extraction.submit_button_id ||
+					pageData.submitButtonId;
+				solvedExtraction.confirm_submit_button_ids =
+					solvedExtraction.confirm_submit_button_ids ||
+					extraction.confirm_submit_button_ids ||
+					pageData.confirmButtonIds;
+
+				state.setExtraction(solvedExtraction);
+
+				const questionCount = solvedExtraction.questions?.length || 0;
 
 				// Restore progress bar state
 				progress.resetProgress(questionCount);
@@ -131,7 +146,7 @@ export function createSolveController({
 				elements.progressTitle.textContent = "Filling answers...";
 				progress.setStatus("Filling answers...", "loading");
 
-				await this.fillAllAnswers(extraction.questions);
+				await this.fillAllAnswers(solvedExtraction.questions);
 				progress.markStepDone("fill");
 
 				// Step 4: Submit (if enabled)
@@ -141,7 +156,7 @@ export function createSolveController({
 					elements.progressTitle.textContent = "Submitting...";
 					progress.setStatus("Submitting...", "loading");
 
-					await this.submitAssignment(extraction.submit_button_id);
+					await this.submitAssignment(solvedExtraction.submit_button_id);
 					progress.markStepDone("submit");
 					progress.setStatus("Assignment submitted!");
 				} else {
@@ -149,7 +164,7 @@ export function createSolveController({
 				}
 
 				// Show results
-				this.showResults(extraction.questions);
+				this.showResults(solvedExtraction.questions);
 			} catch (error) {
 				log(`Solve failed: ${error.message}`);
 				progress.setStatus(`Error: ${error.message}`, "error");
@@ -270,7 +285,11 @@ export function createSolveController({
 			questions.forEach((q, i) => {
 				const confidence = q.answer.confidence || "medium";
 				const confidenceClass =
-					confidence === "high" ? "high" : confidence === "low" ? "low" : "medium";
+					confidence === "high"
+						? "high"
+						: confidence === "low"
+							? "low"
+							: "medium";
 
 				html += `
 				<div class="result-item">

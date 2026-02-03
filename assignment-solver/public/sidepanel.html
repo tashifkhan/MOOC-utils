@@ -134,6 +134,26 @@
             <input type="password" id="apiKeyInput" placeholder="Enter API key...">
             <span class="form-hint">Get key from <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></span>
           </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="extractionModelSelect">Extraction Model</label>
+            <select id="extractionModelSelect">
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            </select>
+            <span class="form-hint">Model for parsing questions from page</span>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="solvingModelSelect">Solving Model</label>
+            <select id="solvingModelSelect">
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Recommended)</option>
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            </select>
+            <span class="form-hint">Model for answering questions</span>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" id="saveSettingsBtn">Save Changes</button>

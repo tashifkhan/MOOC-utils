@@ -66,6 +66,22 @@ export function createStorageService({ storage, logger = null }) {
 			return storage.remove("userAnswers");
 		},
 
+		// Model Preferences
+		async saveModelPreferences(preferences) {
+			log("Saving model preferences");
+			return storage.set({ modelPreferences: preferences });
+		},
+
+		async getModelPreferences() {
+			const result = await storage.get("modelPreferences");
+			return (
+				result.modelPreferences || {
+					extractionModel: "gemini-2.5-flash",
+					solvingModel: "gemini-2.5-pro",
+				}
+			);
+		},
+
 		// Export formats
 		async getFullExtraction() {
 			const extraction = await this.getExtraction();

@@ -25,6 +25,8 @@ export function getElements() {
 		settingsModal: document.getElementById("settingsModal"),
 		closeSettingsBtn: document.getElementById("closeSettingsBtn"),
 		apiKeyInput: document.getElementById("apiKeyInput"),
+		extractionModelSelect: document.getElementById("extractionModelSelect"),
+		solvingModelSelect: document.getElementById("solvingModelSelect"),
 		saveSettingsBtn: document.getElementById("saveSettingsBtn"),
 		loadingOverlay: document.getElementById("loadingOverlay"),
 		loadingText: document.getElementById("loadingText"),
