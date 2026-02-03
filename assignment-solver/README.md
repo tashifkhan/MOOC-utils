@@ -18,7 +18,7 @@ A browser extension that uses Google's Gemini AI to extract, analyze, and solve 
 - [x] Modularise the codebase a bit (this was just for testing and this works better than I expected)
 - [x] Firefox Support
 - [x] Modular Build System
-- [ ] Add Gemini Model Selector
+- [x] Add Gemini Model Selector
 - [ ] Better UI maybe (this gemini generated one works fine ig but lets see)
 
 ## Prerequisites
@@ -51,12 +51,14 @@ bun run build:firefox   # Build Firefox extension
 ### 3. Load in Browser
 
 **Chrome:**
+
 - Open Chrome and navigate to `chrome://extensions/`
 - Enable **Developer mode** (toggle in top-right corner)
 - Click **Load unpacked**
 - Select the `dist/chrome/` folder
 
 **Firefox:**
+
 - Open Firefox and navigate to `about:debugging`
 - Click **This Firefox**
 - Click **Load Temporary Add-on**
@@ -131,11 +133,11 @@ bun run format    # Run Prettier
 
 ## Supported Question Types
 
-| Type | Description | How It's Handled |
-|------|-------------|------------------|
-| Single Choice | Radio button questions | Clicks the correct radio option |
-| Multi Choice | Checkbox questions | Checks all correct options, unchecks wrong ones |
-| Fill-in-the-Blank | Text/number input fields | Types the answer and triggers input events |
+| Type              | Description              | How It's Handled                                |
+| ----------------- | ------------------------ | ----------------------------------------------- |
+| Single Choice     | Radio button questions   | Clicks the correct radio option                 |
+| Multi Choice      | Checkbox questions       | Checks all correct options, unchecks wrong ones |
+| Fill-in-the-Blank | Text/number input fields | Types the answer and triggers input events      |
 
 ## Project Structure
 
@@ -201,54 +203,55 @@ assignment-solver/
 ### JSON Schemas
 
 #### Extraction Schema
+
 ```json
 {
-  "submit_button_id": "submitbutton",
-  "confirm_submit_button_ids": {
-    "not_all_attempt_submit": "...",
-    "not_all_attempt_cancel": "...",
-    "no_attempt_ok": "..."
-  },
-  "questions": [
-    {
-      "question_id": "unique-id",
-      "question_type": "single_choice|multi_choice|fill_blank",
-      "question": "Question text...",
-      "choices": [
-        { "option_id": "opt-1", "text": "Option A" }
-      ],
-      "inputs": [
-        { "input_id": "input-1", "input_type": "text" }
-      ]
-    }
-  ]
+	"submit_button_id": "submitbutton",
+	"confirm_submit_button_ids": {
+		"not_all_attempt_submit": "...",
+		"not_all_attempt_cancel": "...",
+		"no_attempt_ok": "..."
+	},
+	"questions": [
+		{
+			"question_id": "unique-id",
+			"question_type": "single_choice|multi_choice|fill_blank",
+			"question": "Question text...",
+			"choices": [{ "option_id": "opt-1", "text": "Option A" }],
+			"inputs": [{ "input_id": "input-1", "input_type": "text" }]
+		}
+	]
 }
 ```
 
 #### Answer Schema
+
 ```json
 {
-  "question_id": "unique-id",
-  "question_type": "single_choice",
-  "selected_option_ids": ["opt-2"],
-  "fill_blank_answer": "",
-  "confidence": "high|medium|low",
-  "reasoning": "Brief explanation..."
+	"question_id": "unique-id",
+	"question_type": "single_choice",
+	"selected_option_ids": ["opt-2"],
+	"fill_blank_answer": "",
+	"confidence": "high|medium|low",
+	"reasoning": "Brief explanation..."
 }
 ```
 
 ## Configuration
 
 ### API Key Storage
+
 - Stored locally in `browser.storage.local` (via polyfill)
 - Never sent to any server except Google's Gemini API
 - Persists across browser sessions
 
 ### Model Selection
+
 - Default: `gemini-2.5-pro`
 - Can be changed in `src/services/gemini/index.js`
 
 ### Rate Limiting
+
 - 500ms delay between API calls for answers
 - 200ms delay between DOM operations
 - Prevents API throttling and ensures reliable page updates
@@ -256,39 +259,44 @@ assignment-solver/
 ## Troubleshooting
 
 ### "Could not get page HTML"
+
 - Ensure you're on an actual assignment page
 - The page must be fully loaded
 - Try refreshing the page and re-extracting
 
 ### "Question container not found"
+
 - The extracted IDs don't match the page
 - Try re-extracting questions
 - Check console for detailed error info
 
 ### "API Key invalid"
+
 - Verify your key at [Google AI Studio](https://aistudio.google.com/)
 - Ensure the key has Gemini API access enabled
 - Check for extra spaces when pasting
 
 ### Answers not being applied
+
 - Some platforms use custom input components
 - Check browser console for errors
 - Try applying answers one at a time to identify issues
 
 ### Rate limit errors
+
 - Wait a few minutes before retrying
 - Consider upgrading your API quota
 - Reduce the number of questions per session
 
 ## Permissions Explained
 
-| Permission | Why It's Needed |
-|------------|-----------------|
-| `activeTab` | Access current tab to extract/modify content |
-| `scripting` | Inject content script for page interaction |
-| `storage` | Store API key locally |
-| `sidePanel` (Chrome) / `sidebarAction` (Firefox) | Display the extension UI |
-| `host_permissions` (googleapis.com) | Make API calls to Gemini |
+| Permission                                       | Why It's Needed                              |
+| ------------------------------------------------ | -------------------------------------------- |
+| `activeTab`                                      | Access current tab to extract/modify content |
+| `scripting`                                      | Inject content script for page interaction   |
+| `storage`                                        | Store API key locally                        |
+| `sidePanel` (Chrome) / `sidebarAction` (Firefox) | Display the extension UI                     |
+| `host_permissions` (googleapis.com)              | Make API calls to Gemini                     |
 
 ## Limitations
 
@@ -305,19 +313,21 @@ assignment-solver/
 ## Development
 
 ### Modifying Selectors
+
 If the extension doesn't work on your platform, you may need to adjust selectors in `src/content/extractor.js`:
 
 ```javascript
 // Update these selectors for your platform
 const selectors = [
-  '.assessment-contents',
-  '.qt-assessment',
-  '.gcb-assessment-contents',
-  // Add your platform's selectors here
+	".assessment-contents",
+	".qt-assessment",
+	".gcb-assessment-contents",
+	// Add your platform's selectors here
 ];
 ```
 
 ### Adding New Question Types
+
 1. Update extraction schema in `src/services/gemini/schema.js`
 2. Add handling in `src/content/applicator.js`
 3. Update UI controllers in `src/ui/controllers/`
