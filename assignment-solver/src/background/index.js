@@ -25,7 +25,7 @@ const logger = createLogger("Background");
 const runtimeAdapter = createRuntimeAdapter();
 const tabsAdapter = createTabsAdapter();
 const scriptingAdapter = createScriptingAdapter();
-const panelAdapter = createPanelAdapter();
+const panelAdapter = createPanelAdapter({ logger });
 
 logger.log("Initializing background service worker");
 

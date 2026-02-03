@@ -9,9 +9,14 @@ import { browser, isFirefox, isChrome, hasAPI } from "./browser.js";
 /**
  * Create panel adapter
  * Abstracts the differences between Chrome sidePanel and Firefox sidebarAction
+ * @param {Object} deps - Dependencies
+ * @param {Object} [deps.logger] - Optional logger instance
  * @returns {object} Panel adapter with unified API
  */
-export function createPanelAdapter() {
+export function createPanelAdapter({ logger = null } = {}) {
+  const log = logger?.log || (() => {});
+  const logError = logger?.error || console.error.bind(console, "[PanelAdapter]");
+  
   const firefox = isFirefox();
   const chrome = isChrome();
 
@@ -40,7 +45,7 @@ export function createPanelAdapter() {
           }
         }
       } catch (error) {
-        console.error("[PanelAdapter] Failed to open panel:", error);
+        logError("Failed to open panel:", error);
         throw error;
       }
     },
@@ -59,7 +64,7 @@ export function createPanelAdapter() {
         }
         // Chrome doesn't have a direct close API for sidePanel
       } catch (error) {
-        console.error("[PanelAdapter] Failed to close panel:", error);
+        logError("Failed to close panel:", error);
         throw error;
       }
     },
@@ -78,7 +83,7 @@ export function createPanelAdapter() {
             openPanelOnActionClick: options.openPanelOnActionClick ?? true,
           });
         } catch (error) {
-          console.error("[PanelAdapter] Failed to set panel behavior:", error);
+          logError("Failed to set panel behavior:", error);
           // Non-critical error, don't throw
         }
       }

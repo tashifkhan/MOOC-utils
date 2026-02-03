@@ -3,15 +3,15 @@
  * Applies AI-generated answers to form elements on the page
  */
 
-import { createLogger } from "./logger.js";
-
 /**
  * Create applicator service
+ * @param {Object} deps - Dependencies
+ * @param {Object} [deps.logger] - Optional logger instance
  * @returns {Object} Applicator with applyAnswers and submitAssignment methods
  */
-export function createApplicator() {
-	const logger = createLogger("Applicator");
-	const log = logger.log;
+export function createApplicator({ logger = null } = {}) {
+	const log = logger?.log || (() => {});
+	const error = logger?.error || (() => {});
 
 	return {
 		/**
@@ -22,7 +22,7 @@ export function createApplicator() {
 			log(`Applying ${answers?.length} answers`);
 
 			if (!answers || !Array.isArray(answers)) {
-				logger.error("Invalid answers array");
+				error("Invalid answers array");
 				return;
 			}
 

@@ -12,9 +12,9 @@ import { createApplicator } from "./applicator.js";
 const logger = createLogger("Content");
 logger.log("Content script loaded on:", window.location.href);
 
-// Initialize services
-const extractor = createExtractor();
-const applicator = createApplicator();
+// Initialize services with injected logger
+const extractor = createExtractor({ logger });
+const applicator = createApplicator({ logger });
 
 // Set up message listener
 browser.runtime.onMessage.addListener((message, sender) => {

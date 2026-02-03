@@ -3,15 +3,15 @@
  * Extracts assignment content and converts images to base64
  */
 
-import { createLogger } from "./logger.js";
-
 /**
  * Create extractor service
+ * @param {Object} deps - Dependencies
+ * @param {Object} [deps.logger] - Optional logger instance
  * @returns {Object} Extractor with extractPageHTML and extractImages methods
  */
-export function createExtractor() {
-	const logger = createLogger("Extractor");
-	const log = logger.log;
+export function createExtractor({ logger = null } = {}) {
+	const log = logger?.log || (() => {});
+	const warn = logger?.warn || (() => {});
 
 	return {
 		/**
@@ -168,7 +168,7 @@ export function createExtractor() {
 						);
 					}
 				} catch (error) {
-					logger.warn(`Error extracting image: ${error}`);
+					warn(`Error extracting image: ${error}`);
 				}
 			}
 
