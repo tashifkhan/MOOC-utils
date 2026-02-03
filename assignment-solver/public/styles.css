@@ -450,6 +450,36 @@ body {
   font-weight: 500;
 }
 
+/* Step states using data-state attribute */
+.step[data-state="active"] {
+  border-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.1);
+  color: #fff;
+}
+
+.step[data-state="done"] {
+  border-color: var(--accent-success);
+  color: var(--accent-success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.step[data-state="error"] {
+  border-color: var(--accent-error);
+  color: var(--accent-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.step[data-state="active"] .step-icon {
+  background: var(--accent-primary);
+  color: white;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.step[data-state="done"] .step-icon {
+  background: var(--accent-success);
+  color: white;
+}
+
 /* Results Section */
 .results-section {
   flex: 1;
@@ -584,6 +614,41 @@ body {
   padding-top: 10px;
   border-top: 1px dashed var(--border-glass);
   font-style: italic;
+}
+
+/* Assignment Info Section */
+.assignment-info {
+  padding: 20px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+  border-bottom: 1px solid var(--border-glass);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.assignment-badge {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-success);
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.assignment-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.question-count {
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
 /* Empty State */
@@ -801,4 +866,9 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
 }

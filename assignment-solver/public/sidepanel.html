@@ -16,7 +16,7 @@
       <button class="btn-icon" id="settingsBtn" title="Settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       </button>
     </header>
@@ -29,6 +29,13 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <!-- Assignment Info Section (shown when on assignment page) -->
+      <div class="assignment-info hidden" id="assignmentInfo">
+        <div class="assignment-badge">Assignment Detected</div>
+        <h2 class="assignment-title" id="assignmentTitle">Loading...</h2>
+        <span class="question-count" id="questionCount">0 questions</span>
+      </div>
+
       <!-- ONE CLICK SOLVE Button -->
       <div class="solve-section">
         <button class="btn btn-solve" id="solveBtn">
@@ -52,7 +59,7 @@
       </div>
 
       <!-- Progress Section -->
-      <div class="progress-section" id="progressSection" style="display: none;">
+      <div class="progress-section hidden" id="progressSection">
         <div class="progress-header">
           <span class="progress-title" id="progressTitle">Processing...</span>
           <span class="progress-count" id="progressCount">0/0</span>
@@ -93,7 +100,7 @@
       </div>
 
       <!-- Results Section -->
-      <div class="results-section" id="resultsSection" style="display: none;">
+      <div class="results-section hidden" id="resultsSection">
         <div class="results-header">
           <h3>
              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
@@ -120,7 +127,7 @@
     </main>
 
     <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal" style="display: none;">
+    <div class="modal-overlay hidden" id="settingsModal">
       <div class="modal">
         <div class="modal-header">
           <h2>Settings</h2>
@@ -139,20 +146,50 @@
             <label for="extractionModelSelect">Extraction Model</label>
             <select id="extractionModelSelect">
               <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
+              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
               <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+              <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Preview)</option>
+              <option value="gemini-3-pro-preview">Gemini 3.0 Pro (Preview)</option>
               <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+              <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
             </select>
             <span class="form-hint">Model for parsing questions from page</span>
           </div>
 
           <div class="form-group" style="margin-top: 16px;">
+            <label for="extractionReasoningSelect">Extraction Reasoning Level</label>
+            <select id="extractionReasoningSelect">
+              <option value="none">No Reasoning (Fastest)</option>
+              <option value="low">Low Reasoning</option>
+              <option value="medium">Medium Reasoning</option>
+              <option value="high" selected>High Reasoning (Default)</option>
+            </select>
+            <span class="form-hint">Higher reasoning = better extraction, slower processing</span>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
             <label for="solvingModelSelect">Solving Model</label>
             <select id="solvingModelSelect">
-              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Recommended)</option>
+              <option value="gemini-3-pro-preview">Gemini 3.0 Pro (Preview) - Recommended</option>
+              <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Preview)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
               <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
               <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+              <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
             </select>
             <span class="form-hint">Model for answering questions</span>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="solvingReasoningSelect">Solving Reasoning Level</label>
+            <select id="solvingReasoningSelect">
+              <option value="none">No Reasoning (Fastest)</option>
+              <option value="low">Low Reasoning</option>
+              <option value="medium">Medium Reasoning</option>
+              <option value="high" selected>High Reasoning (Default)</option>
+            </select>
+            <span class="form-hint">Higher reasoning = better answers, slower processing</span>
           </div>
         </div>
         <div class="modal-footer">
@@ -162,7 +199,7 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+    <div class="loading-overlay hidden" id="loadingOverlay">
       <div class="loading-spinner"></div>
       <p class="loading-text" id="loadingText">Processing...</p>
     </div>

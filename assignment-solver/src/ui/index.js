@@ -12,6 +12,7 @@ import { createStateManager } from "./state.js";
 import { createProgressController } from "./controllers/progress.js";
 import { createSettingsController } from "./controllers/settings.js";
 import { createSolveController } from "./controllers/solve.js";
+import { createDetectionController } from "./controllers/detection.js";
 
 // Initialize
 document.addEventListener("DOMContentLoaded", async () => {
@@ -45,6 +46,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 		settings,
 		logger,
 	});
+	const detection = createDetectionController({
+		elements,
+		runtime: runtimeAdapter,
+		logger,
+	});
 
 	// Load API key on startup
 	const apiKey = await storage.getApiKey();
@@ -59,6 +65,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 			progress.setStatus("API key saved");
 		},
 	});
+
+	// Initialize assignment detection
+	detection.init();
 
 	logger.log("Side panel initialized");
 });

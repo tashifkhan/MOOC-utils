@@ -23,7 +23,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
 	// Return a promise for async responses
 	return new Promise((resolve) => {
 		try {
-			switch (message.type) {
+				switch (message.type) {
 				case "PING":
 					// Health check - respond to confirm script is loaded
 					resolve({ pong: true });
@@ -32,6 +32,12 @@ browser.runtime.onMessage.addListener((message, sender) => {
 				case "GET_PAGE_HTML":
 					const pageData = extractor.extractPageHTML();
 					resolve(pageData);
+					break;
+
+				case "GET_PAGE_INFO":
+					// Quick page info for assignment detection
+					const info = extractor.getPageInfo();
+					resolve(info);
 					break;
 
 				case "SCROLL_INFO":

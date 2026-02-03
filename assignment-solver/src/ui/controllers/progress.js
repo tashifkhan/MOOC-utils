@@ -23,7 +23,30 @@ export function createProgressController({ elements, logger = null }) {
 				elements.statusText.textContent = message;
 			}
 			if (elements.statusBar) {
-				elements.statusBar.className = `status-bar ${type}`;
+				// Update status bar styling based on type
+				const dot = elements.statusBar.querySelector(".status-dot");
+				
+				if (type === "error") {
+					elements.statusBar.classList.add("error");
+					elements.statusBar.classList.remove("loading");
+					if (dot) {
+						dot.style.background = "var(--accent-error)";
+						dot.style.boxShadow = "0 0 8px var(--accent-error)";
+					}
+				} else if (type === "loading") {
+					elements.statusBar.classList.add("loading");
+					elements.statusBar.classList.remove("error");
+					if (dot) {
+						dot.style.background = "var(--accent-warning)";
+						dot.style.boxShadow = "0 0 8px var(--accent-warning)";
+					}
+				} else {
+					elements.statusBar.classList.remove("error", "loading");
+					if (dot) {
+						dot.style.background = "var(--accent-success)";
+						dot.style.boxShadow = "0 0 8px var(--accent-success)";
+					}
+				}
 			}
 		},
 
@@ -33,17 +56,24 @@ export function createProgressController({ elements, logger = null }) {
 		 * @param {string} [status] - Step status (active, done, error)
 		 */
 		setStep(stepName, status = "active") {
-			const steps = elements.progressSteps?.querySelectorAll(".step");
+			const steps = elements.progressSteps?.querySelectorAll("[data-step]");
 			steps?.forEach((step) => {
 				const isTarget = step.dataset.step === stepName;
-				step.classList.remove("active", "done", "error");
-				if (status === "done" && isTarget) {
-					step.classList.add("done");
-				} else if (status === "active" && isTarget) {
-					step.classList.add("active");
-				} else if (status === "error" && isTarget) {
-					step.classList.add("error");
+				if (isTarget) {
+					step.dataset.state = status;
+				} else {
+					step.removeAttribute("data-state");
 				}
+			});
+		},
+
+		/**
+		 * Reset all step states
+		 */
+		resetSteps() {
+			const steps = elements.progressSteps?.querySelectorAll("[data-step]");
+			steps?.forEach((step) => {
+				step.removeAttribute("data-state");
 			});
 		},
 
@@ -55,8 +85,9 @@ export function createProgressController({ elements, logger = null }) {
 			const step = elements.progressSteps?.querySelector(
 				`[data-step="${stepName}"]`,
 			);
-			step?.classList.remove("active");
-			step?.classList.add("done");
+			if (step) {
+				step.dataset.state = "done";
+			}
 		},
 
 		/**
@@ -67,9 +98,11 @@ export function createProgressController({ elements, logger = null }) {
 		setProgress(current, total) {
 			if (elements.progressCount) {
 				elements.progressCount.textContent = `${current}/${total}`;
+				elements.progressCount.style.display = "block";
 			}
 			if (elements.progressFill) {
 				elements.progressFill.style.width = `${(current / total) * 100}%`;
+				elements.progressFill.classList.remove("animate-pulse");
 			}
 		},
 
@@ -82,7 +115,7 @@ export function createProgressController({ elements, logger = null }) {
 			}
 			if (elements.progressFill) {
 				elements.progressFill.style.width = "100%";
-				elements.progressFill.classList.add("indeterminate");
+				elements.progressFill.classList.add("animate-pulse");
 			}
 		},
 
@@ -96,7 +129,7 @@ export function createProgressController({ elements, logger = null }) {
 				elements.progressCount.textContent = `0/${total}`;
 			}
 			if (elements.progressFill) {
-				elements.progressFill.classList.remove("indeterminate");
+				elements.progressFill.classList.remove("animate-pulse");
 				elements.progressFill.style.width = "0%";
 			}
 		},
@@ -106,13 +139,15 @@ export function createProgressController({ elements, logger = null }) {
 		 */
 		showProgress() {
 			if (elements.progressSection) {
-				elements.progressSection.style.display = "block";
+				elements.progressSection.classList.remove("hidden");
 			}
 			if (elements.emptyState) {
-				elements.emptyState.style.display = "none";
+				elements.emptyState.classList.add("hidden");
+				elements.emptyState.classList.remove("flex");
 			}
 			if (elements.resultsSection) {
-				elements.resultsSection.style.display = "none";
+				elements.resultsSection.classList.add("hidden");
+				elements.resultsSection.classList.remove("flex");
 			}
 		},
 
@@ -121,7 +156,7 @@ export function createProgressController({ elements, logger = null }) {
 		 */
 		hideProgress() {
 			if (elements.progressSection) {
-				elements.progressSection.style.display = "none";
+				elements.progressSection.classList.add("hidden");
 			}
 		},
 	};

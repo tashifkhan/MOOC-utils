@@ -77,7 +77,9 @@ export function createStorageService({ storage, logger = null }) {
 			return (
 				result.modelPreferences || {
 					extractionModel: "gemini-2.5-flash",
-					solvingModel: "gemini-2.5-pro",
+					extractionReasoningLevel: "high",
+					solvingModel: "gemini-3-pro-preview",
+					solvingReasoningLevel: "high",
 				}
 			);
 		},

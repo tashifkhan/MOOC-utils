@@ -6,6 +6,7 @@ export const MESSAGE_TYPES = {
 	// Content script communication
 	PING: "PING",
 	GET_PAGE_HTML: "GET_PAGE_HTML",
+	GET_PAGE_INFO: "GET_PAGE_INFO",
 	APPLY_ANSWERS: "APPLY_ANSWERS",
 	SUBMIT_ASSIGNMENT: "SUBMIT_ASSIGNMENT",
 
@@ -17,6 +18,7 @@ export const MESSAGE_TYPES = {
 	// Internal
 	SCROLL_INFO: "SCROLL_INFO",
 	SCROLL_TO: "SCROLL_TO",
+	TAB_UPDATED: "TAB_UPDATED",
 };
 
 /**

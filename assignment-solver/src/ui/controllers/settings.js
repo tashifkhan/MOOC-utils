@@ -28,11 +28,20 @@ export function createSettingsController({ elements, storage, logger = null }) {
 			if (elements.extractionModelSelect) {
 				elements.extractionModelSelect.value = prefs.extractionModel;
 			}
+			if (elements.extractionReasoningSelect) {
+				elements.extractionReasoningSelect.value = prefs.extractionReasoningLevel || "high";
+			}
 			if (elements.solvingModelSelect) {
 				elements.solvingModelSelect.value = prefs.solvingModel;
 			}
+			if (elements.solvingReasoningSelect) {
+				elements.solvingReasoningSelect.value = prefs.solvingReasoningLevel || "high";
+			}
 			if (elements.settingsModal) {
-				elements.settingsModal.style.display = "flex";
+				elements.settingsModal.classList.remove("hidden");
+				// Force reflow for animation
+				void elements.settingsModal.offsetWidth;
+				elements.settingsModal.classList.remove("opacity-0");
 			}
 		},
 
@@ -42,7 +51,10 @@ export function createSettingsController({ elements, storage, logger = null }) {
 		hide() {
 			log("Hiding settings modal");
 			if (elements.settingsModal) {
-				elements.settingsModal.style.display = "none";
+				elements.settingsModal.classList.add("opacity-0");
+				setTimeout(() => {
+					elements.settingsModal.classList.add("hidden");
+				}, 200);
 			}
 		},
 
@@ -53,7 +65,9 @@ export function createSettingsController({ elements, storage, logger = null }) {
 		async save() {
 			const apiKey = elements.apiKeyInput?.value?.trim();
 			const extractionModel = elements.extractionModelSelect?.value;
+			const extractionReasoning = elements.extractionReasoningSelect?.value;
 			const solvingModel = elements.solvingModelSelect?.value;
+			const solvingReasoning = elements.solvingReasoningSelect?.value;
 
 			if (!apiKey) {
 				log("API key not provided");
@@ -64,7 +78,9 @@ export function createSettingsController({ elements, storage, logger = null }) {
 			await storage.saveApiKey(apiKey);
 			await storage.saveModelPreferences({
 				extractionModel: extractionModel || "gemini-2.5-flash",
-				solvingModel: solvingModel || "gemini-2.5-pro",
+				extractionReasoningLevel: extractionReasoning || "high",
+				solvingModel: solvingModel || "gemini-3-pro-preview",
+				solvingReasoningLevel: solvingReasoning || "high",
 			});
 			return true;
 		},

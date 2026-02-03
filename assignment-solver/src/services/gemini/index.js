@@ -10,6 +10,45 @@ import { parseGeminiResponse } from "./parser.js";
 
 const API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 
+// Reasoning level to thinking budget mapping (in tokens)
+// Max thinking budget is 24576 as per Gemini API limits
+const REASONING_BUDGETS = {
+	none: null,
+	low: 4096,
+	medium: 12288,
+	high: 24576,
+};
+
+// Models that don't support thinking/reasoning
+const NO_THINKING_MODELS = ["gemini-2.0-flash", "gemini-2.0-flash-lite"];
+
+/**
+ * Build thinking config based on model and reasoning level
+ * @param {string} model - Model ID
+ * @param {string} reasoningLevel - Reasoning level (none, low, medium, high)
+ * @returns {Object|undefined} Thinking config or undefined
+ */
+function buildThinkingConfig(model, reasoningLevel) {
+	// Skip for models without thinking support
+	if (NO_THINKING_MODELS.some((m) => model.includes(m))) {
+		return undefined;
+	}
+
+	// Skip if reasoning disabled
+	if (reasoningLevel === "none" || !reasoningLevel) {
+		return undefined;
+	}
+
+	const budget = REASONING_BUDGETS[reasoningLevel];
+	if (!budget) {
+		return undefined;
+	}
+
+	// Gemini 2.5 and 3.0 families use thinkingBudget parameter
+	// Both families support the same thinkingConfig format
+	return { thinkingBudget: budget };
+}
+
 /**
  * Create a Gemini service
  * @param {Object} deps - Dependencies
@@ -100,6 +139,7 @@ export function createGeminiService({ runtime, logger = null }) {
 		 * @param {Array} images
 		 * @param {Array} screenshots
 		 * @param {string} model
+		 * @param {string} reasoningLevel
 		 */
 		async extract(
 			apiKey,
@@ -108,6 +148,7 @@ export function createGeminiService({ runtime, logger = null }) {
 			images = [],
 			screenshots = [],
 			model = "gemini-2.5-flash",
+			reasoningLevel = "high",
 		) {
 			const systemPrompt = `You are an expert at parsing NPTEL course assignments.
 Your task is to:
@@ -151,10 +192,11 @@ Title: ${pageInfo.title}`;
 					responseMimeType: "application/json",
 					responseSchema: EXTRACTION_ONLY_SCHEMA,
 					temperature: 0.1,
+					thinkingConfig: buildThinkingConfig(model, reasoningLevel),
 				},
 			};
 
-			log(`Calling Gemini API (extract) with model: ${model}`);
+			log(`Calling Gemini API (extract) with model: ${model}, reasoning: ${reasoningLevel}`);
 			const response = await this.callAPI(apiKey, payload, model);
 			return parseGeminiResponse(response);
 		},
@@ -166,13 +208,15 @@ Title: ${pageInfo.title}`;
 		 * @param {Array} images
 		 * @param {Array} screenshots
 		 * @param {string} model
+		 * @param {string} reasoningLevel
 		 */
 		async solve(
 			apiKey,
 			extractionResult,
 			images = [],
 			screenshots = [],
-			model = "gemini-2.5-pro",
+			model = "gemini-3-pro-preview",
+			reasoningLevel = "high",
 		) {
 			const systemPrompt = `You are an expert at solving NPTEL course assignments.
 Your task is to provide the CORRECT ANSWER for each provided question.
@@ -214,14 +258,11 @@ Return ONLY valid JSON.`;
 					responseMimeType: "application/json",
 					responseSchema: EXTRACTION_WITH_ANSWERS_SCHEMA,
 					temperature: 0.1,
-					// Only use thinking for pro/flash-thinking models if supported
-					thinkingConfig: model.includes("thinking")
-						? { thinkingBudget: 28192 }
-						: undefined,
+					thinkingConfig: buildThinkingConfig(model, reasoningLevel),
 				},
 			};
 
-			log(`Calling Gemini API (solve) with model: ${model}`);
+			log(`Calling Gemini API (solve) with model: ${model}, reasoning: ${reasoningLevel}`);
 			const response = await this.callAPI(apiKey, payload, model);
 			return parseGeminiResponse(response);
 		},

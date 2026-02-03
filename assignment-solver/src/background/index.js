@@ -15,6 +15,7 @@ import { createExtractionHandler } from "./handlers/extraction.js";
 import { createScreenshotHandler } from "./handlers/screenshot.js";
 import { createGeminiHandler } from "./handlers/gemini.js";
 import { createAnswerHandler } from "./handlers/answers.js";
+import { createPageInfoHandler } from "./handlers/pageinfo.js";
 import { createMessageRouter } from "./router.js";
 
 // Initialize logger
@@ -43,6 +44,11 @@ const screenshotService = createScreenshotService({
 // Create message handlers
 const handlers = {
 	[MESSAGE_TYPES.EXTRACT_HTML]: createExtractionHandler({
+		tabs: tabsAdapter,
+		scripting: scriptingAdapter,
+		logger,
+	}),
+	[MESSAGE_TYPES.GET_PAGE_INFO]: createPageInfoHandler({
 		tabs: tabsAdapter,
 		scripting: scriptingAdapter,
 		logger,

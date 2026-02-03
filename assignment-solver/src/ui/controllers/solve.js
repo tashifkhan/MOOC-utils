@@ -56,6 +56,7 @@ export function createSolveController({
 			state.setIsProcessing(true);
 			elements.solveBtn.disabled = true;
 			progress.showProgress();
+			progress.resetSteps();
 
 			try {
 				// Step 1: Extract HTML and capture screenshots
@@ -91,7 +92,15 @@ export function createSolveController({
 				const imageCount = pageData.images?.length || 0;
 				const screenshotCount = screenshots.length;
 				
-				progress.setStatus(`AI extraction (${imageCount} imgs, ${screenshotCount} screens)...`, "loading");
+				// Log for debugging
+				log(`Extracted ${imageCount} images from page, captured ${screenshotCount} screenshots`);
+				
+				// Show status with counts (even if 0, so user knows what's happening)
+				const statusMsg = imageCount > 0 || screenshotCount > 0
+					? `AI extraction (${imageCount} imgs, ${screenshotCount} screens)...`
+					: "AI extraction (no images found)...";
+				
+				progress.setStatus(statusMsg, "loading");
 				elements.progressTitle.textContent = `Extracting questions (${prefs.extractionModel})...`;
 				progress.setIndeterminate();
 
@@ -105,6 +114,7 @@ export function createSolveController({
 					pageData.images || [],
 					screenshots,
 					prefs.extractionModel,
+					prefs.extractionReasoningLevel,
 				);
 
 				progress.markStepDone("extract");
@@ -112,7 +122,11 @@ export function createSolveController({
 				// Step 2b: Solve questions (Gemini)
 				progress.setStep("answer", "active");
 				elements.progressTitle.textContent = `Solving questions (${prefs.solvingModel})...`;
-				progress.setStatus(`AI solving (${imageCount} imgs, ${screenshotCount} screens)...`, "loading");
+				
+				const solveStatusMsg = imageCount > 0 || screenshotCount > 0
+					? `AI solving (${imageCount} imgs, ${screenshotCount} screens)...`
+					: "AI solving questions...";
+				progress.setStatus(solveStatusMsg, "loading");
 
 				const solvedExtraction = await gemini.solve(
 					apiKey,
@@ -120,6 +134,7 @@ export function createSolveController({
 					pageData.images || [],
 					screenshots,
 					prefs.solvingModel,
+					prefs.solvingReasoningLevel,
 				);
 
 				// Merge page info and solved answers
@@ -274,35 +289,42 @@ export function createSolveController({
 			progress.hideProgress();
 
 			if (elements.resultsSection) {
-				elements.resultsSection.style.display = "block";
+				elements.resultsSection.classList.remove("hidden");
+				elements.resultsSection.classList.add("flex");
 			}
 
 			if (elements.resultsCount) {
-				elements.resultsCount.textContent = `${questions.length} questions`;
+				elements.resultsCount.textContent = `${questions.length} Qs`;
 			}
 
 			let html = "";
 			questions.forEach((q, i) => {
 				const confidence = q.answer.confidence || "medium";
-				const confidenceClass =
-					confidence === "high"
-						? "high"
-						: confidence === "low"
-							? "low"
-							: "medium";
+				const questionText = q.question || "";
+				const truncatedQuestion = questionText.length > 150
+					? questionText.substring(0, 150) + "..."
+					: questionText;
 
 				html += `
 				<div class="result-item">
 					<div class="result-header">
 						<span class="result-number">Q${i + 1}</span>
-						<span class="result-type ${q.question_type}">${formatQuestionType(q.question_type)}</span>
-						<span class="result-confidence ${confidenceClass}">${confidence}</span>
+						<span class="result-type">${formatQuestionType(q.question_type)}</span>
+						<span class="result-confidence ${confidence}">${confidence}</span>
 					</div>
-					<div class="result-question">${escapeHtml(q.question.substring(0, 100))}${q.question.length > 100 ? "..." : ""}</div>
+					
+					<div class="result-question">
+						${escapeHtml(truncatedQuestion)}
+					</div>
+					
 					<div class="result-answer">
-						<strong>Answer:</strong> ${escapeHtml(q.answer.answer_text)}
+						<strong>Ans:</strong> ${escapeHtml(q.answer.answer_text)}
 					</div>
-					${q.answer.reasoning ? `<div class="result-reasoning">${escapeHtml(q.answer.reasoning)}</div>` : ""}
+					
+					${q.answer.reasoning ? `
+					<div class="result-reasoning">
+						"${escapeHtml(q.answer.reasoning)}"
+					</div>` : ""}
 				</div>
 			`;
 			});

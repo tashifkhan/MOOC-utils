@@ -174,6 +174,65 @@ export function createExtractor() {
 
 			return images;
 		},
+
+		/**
+		 * Get quick page info for assignment detection
+		 * @returns {Object} Page info with title and question count
+		 */
+		getPageInfo() {
+			// Count questions on the page
+			const questionSelectors = [
+				".qt-mc-question",
+				".gcb-assessment-item",
+				".assessment-question",
+				'[class*="question"]',
+			];
+
+			let questionCount = 0;
+			for (const selector of questionSelectors) {
+				const elements = document.querySelectorAll(selector);
+				if (elements.length > questionCount) {
+					questionCount = elements.length;
+				}
+			}
+
+			// Try to extract assignment title from page
+			let title = document.title;
+
+			// Look for specific assignment title elements
+			const titleSelectors = [
+				".assessment-title",
+				".gcb-assessment-title",
+				"h1.assessment-heading",
+				".unit-title",
+				"h1",
+			];
+
+			for (const selector of titleSelectors) {
+				const element = document.querySelector(selector);
+				if (element && element.textContent.trim()) {
+					title = element.textContent.trim();
+					break;
+				}
+			}
+
+			// Check if this is an assignment page
+			const url = window.location.href;
+			const isAssignment =
+				(url.includes("nptel.ac.in") || url.includes("swayam.gov.in")) &&
+				(url.includes("assessment") ||
+					url.includes("assignment") ||
+					url.includes("quiz") ||
+					url.includes("exam") ||
+					questionCount > 0);
+
+			return {
+				title: title,
+				questionCount: questionCount,
+				isAssignment: isAssignment,
+				url: url,
+			};
+		},
 	};
 }
 
