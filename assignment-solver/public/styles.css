@@ -7,35 +7,35 @@
   --bg-secondary: #111827; /* Gray 900 */
   --bg-glass: rgba(17, 24, 39, 0.7);
   --bg-glass-hover: rgba(31, 41, 55, 0.8);
-  
+
   --text-primary: #f9fafb; /* Gray 50 */
   --text-secondary: #9ca3af; /* Gray 400 */
   --text-muted: #6b7280; /* Gray 500 */
-  
+
   /* Accents - Neon & Glow */
   --accent-primary: #3b82f6; /* Blue 500 */
   --accent-hover: #2563eb; /* Blue 600 */
   --accent-glow: rgba(59, 130, 246, 0.5);
   --accent-cyan: #0ea5e9; /* Sky 500 */
   --accent-purple: #6366f1; /* Indigo 500 (Use sparingly) */
-  
+
   --accent-success: #10b981; /* Emerald 500 */
   --accent-warning: #f59e0b; /* Amber 500 */
   --accent-error: #ef4444; /* Red 500 */
-  
+
   --border-glass: rgba(255, 255, 255, 0.08);
   --border-active: rgba(99, 102, 241, 0.3);
-  
+
   /* Shadows */
   --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
-  
+
   /* Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  
+
   /* Transitions */
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -48,12 +48,22 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'General Sans', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "General Sans", "Inter", "Segoe UI",
+    Roboto, sans-serif;
   background: var(--bg-primary);
   /* Deep subtle gradient background */
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 20%);
+  background-image:
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(99, 102, 241, 0.08) 0%,
+      transparent 20%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(6, 182, 212, 0.08) 0%,
+      transparent 20%
+    );
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.5;
@@ -105,6 +115,12 @@ body {
   filter: drop-shadow(0 0 8px var(--accent-glow));
 }
 
+.header-logo {
+  height: 78px;
+  width: auto;
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
 /* Status Bar */
 .status-bar {
   display: flex;
@@ -139,8 +155,15 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
 }
 
 /* Buttons */
@@ -173,7 +196,11 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent-primary) 0%,
+    var(--accent-hover) 100%
+  );
   color: white;
   border: none;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
@@ -226,13 +253,17 @@ body {
 }
 
 .solve-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.05) 0%,
+    transparent 50%
+  );
   z-index: 0;
   pointer-events: none;
 }
@@ -245,7 +276,11 @@ body {
   gap: 16px;
   width: 100%;
   padding: 20px;
-  background: linear-gradient(135deg, #172554 0%, #0f172a 100%); /* Blue 950 to Slate 950 */
+  background: linear-gradient(
+    135deg,
+    #172554 0%,
+    #0f172a 100%
+  ); /* Blue 950 to Slate 950 */
   color: white;
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: var(--radius-lg);
@@ -335,7 +370,7 @@ body {
 }
 
 .toggle-label input[type="checkbox"]:checked::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 3px;
   left: 6px;
@@ -370,7 +405,11 @@ body {
 }
 
 .progress-fill {
-  background: linear-gradient(90deg, var(--accent-cyan) 0%, var(--accent-primary) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--accent-cyan) 0%,
+    var(--accent-primary) 100%
+  );
   height: 100%;
   border-radius: 100px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -379,18 +418,23 @@ body {
 
 .progress-fill.indeterminate {
   width: 100%;
-  background: linear-gradient(90deg, 
-      transparent 0%, 
-      var(--accent-primary) 50%, 
-      transparent 100%
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--accent-primary) 50%,
+    transparent 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .progress-steps {
@@ -534,7 +578,7 @@ body {
 }
 
 .result-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -582,9 +626,16 @@ body {
   letter-spacing: 0.05em;
 }
 
-.result-confidence.high { color: var(--accent-success); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-.result-confidence.medium { color: var(--accent-warning); }
-.result-confidence.low { color: var(--accent-error); }
+.result-confidence.high {
+  color: var(--accent-success);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+.result-confidence.medium {
+  color: var(--accent-warning);
+}
+.result-confidence.low {
+  color: var(--accent-error);
+}
 
 .result-question {
   font-size: 13px;
@@ -666,7 +717,7 @@ body {
   margin-bottom: 20px;
   color: var(--text-muted);
   opacity: 0.4;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 
 .empty-state p {
@@ -833,22 +884,40 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 ::-webkit-scrollbar {
