@@ -56,12 +56,21 @@ export function createPageInfoHandler({ tabs, scripting, logger = null }) {
 			// Inject content script if needed
 			if (!hasContentScript) {
 				try {
-					await scripting.executeScript({
-						target: { tabId },
-						files: ["content.js"],
-					});
-					// Wait a bit for script to initialize
-					await new Promise((resolve) => setTimeout(resolve, 100));
+				await scripting.executeScript({
+					target: { tabId },
+					files: ["content.js"],
+				});
+				// Longer delay for Firefox to ensure script is fully initialized
+				await new Promise((resolve) => setTimeout(resolve, 300));
+				// Verify content script is responding
+				try {
+					await tabs.sendMessage(tabId, { type: MESSAGE_TYPES.PING });
+					log("Content script verified after injection");
+				} catch (verifyError) {
+					log(`Content script verification failed: ${verifyError.message}`);
+					// Try one more time with longer delay
+					await new Promise((r) => setTimeout(r, 200));
+				}
 				} catch (injectError) {
 					log(`Failed to inject content script: ${injectError.message}`);
 				}

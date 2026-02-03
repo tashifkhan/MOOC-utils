@@ -7,6 +7,7 @@ import {
 	EXTRACTION_ONLY_SCHEMA,
 } from "./schema.js";
 import { parseGeminiResponse } from "./parser.js";
+import { sendMessageWithRetry } from "../../core/messages.js";
 
 const API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 
@@ -197,7 +198,8 @@ Title: ${pageInfo.title}`;
 			};
 
 			log(`Calling Gemini API (extract) with model: ${model}, reasoning: ${reasoningLevel}`);
-			const response = await this.callAPI(apiKey, payload, model);
+			// Use direct API call to avoid Firefox message channel timeout issues
+			const response = await this.directAPICall(apiKey, payload, model);
 			return parseGeminiResponse(response);
 		},
 
@@ -263,7 +265,8 @@ Return ONLY valid JSON.`;
 			};
 
 			log(`Calling Gemini API (solve) with model: ${model}, reasoning: ${reasoningLevel}`);
-			const response = await this.callAPI(apiKey, payload, model);
+			// Use direct API call to avoid Firefox message channel timeout issues
+			const response = await this.directAPICall(apiKey, payload, model);
 			return parseGeminiResponse(response);
 		},
 
@@ -271,12 +274,16 @@ Return ONLY valid JSON.`;
 		 * Call Gemini API via background worker
 		 */
 		async callAPI(apiKey, payload, model) {
-			const response = await runtime.sendMessage({
-				type: "GEMINI_REQUEST",
-				apiKey: apiKey,
-				payload: payload,
-				model: model,
-			});
+			const response = await sendMessageWithRetry(
+				runtime,
+				{
+					type: "GEMINI_REQUEST",
+					apiKey: apiKey,
+					payload: payload,
+					model: model,
+				},
+				{ maxRetries: 3, baseDelay: 300, logger: log },
+			);
 
 			if (response?.error) {
 				throw new Error(response.error);

@@ -39,6 +39,11 @@ export function generateManifest(browser) {
 			},
 		],
 
+		content_security_policy: {
+			extension_pages:
+				"script-src 'self'; object-src 'self'; connect-src https://generativelanguage.googleapis.com",
+		},
+
 		icons: {
 			16: "icons/icon16.png",
 			48: "icons/icon48.png",

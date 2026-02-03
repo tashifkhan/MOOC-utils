@@ -2,7 +2,7 @@
  * @fileoverview Assignment detection controller for sidebar UI
  */
 
-import { MESSAGE_TYPES } from "../../core/messages.js";
+import { MESSAGE_TYPES, sendMessageWithRetry } from "../../core/messages.js";
 
 /**
  * Create detection controller
@@ -22,9 +22,11 @@ export function createDetectionController({ elements, runtime, logger = null }) 
 		async checkCurrentPage() {
 			try {
 				log("Checking current page for assignment...");
-				const response = await runtime.sendMessage({
-					type: MESSAGE_TYPES.GET_PAGE_INFO,
-				});
+				const response = await sendMessageWithRetry(
+					runtime,
+					{ type: MESSAGE_TYPES.GET_PAGE_INFO },
+					{ maxRetries: 3, baseDelay: 200, logger: log },
+				);
 
 				if (response?.isAssignment) {
 					this.showAssignmentInfo(response);

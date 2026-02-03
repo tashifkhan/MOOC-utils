@@ -38,12 +38,22 @@ export function createExtractionHandler({ tabs, scripting, logger = null }) {
 			} catch (error) {
 				log("Content script not loaded, injecting...");
 				try {
-					await scripting.executeScript({
-						target: { tabId: tabId },
-						files: ["content.js"],
-					});
-					log("Content script injected successfully");
-					await new Promise((r) => setTimeout(r, 100));
+				await scripting.executeScript({
+					target: { tabId: tabId },
+					files: ["content.js"],
+				});
+				log("Content script injected successfully");
+				// Longer delay for Firefox to ensure script is fully initialized
+				await new Promise((r) => setTimeout(r, 300));
+				// Verify content script is responding
+				try {
+					await tabs.sendMessage(tabId, { type: MESSAGE_TYPES.PING });
+					log("Content script verified after injection");
+				} catch (verifyError) {
+					log(`Content script verification failed: ${verifyError.message}`);
+					// Try one more time with longer delay
+					await new Promise((r) => setTimeout(r, 200));
+				}
 				} catch (injectError) {
 					log(`Failed to inject content script: ${injectError.message}`);
 					sendResponse({

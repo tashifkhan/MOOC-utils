@@ -2,7 +2,7 @@
  * @fileoverview Solve controller for the main assignment solving flow
  */
 
-import { MESSAGE_TYPES } from "../../core/messages.js";
+import { MESSAGE_TYPES, sendMessageWithRetry } from "../../core/messages.js";
 import { escapeHtml, formatQuestionType } from "../utils.js";
 
 /**
@@ -197,9 +197,11 @@ export function createSolveController({
 		 */
 		async extractPageHTML() {
 			log("Requesting page extraction...");
-			const response = await runtime.sendMessage({
-				type: MESSAGE_TYPES.EXTRACT_HTML,
-			});
+			const response = await sendMessageWithRetry(
+				runtime,
+				{ type: MESSAGE_TYPES.EXTRACT_HTML },
+				{ maxRetries: 3, baseDelay: 200, logger: log },
+			);
 
 			if (response?.error) {
 				throw new Error(response.error);
@@ -218,11 +220,15 @@ export function createSolveController({
 		 */
 		async captureFullPageScreenshots(tabId, windowId) {
 			log(`Requesting full-page screenshots for tab: ${tabId}`);
-			const response = await runtime.sendMessage({
-				type: MESSAGE_TYPES.CAPTURE_FULL_PAGE,
-				tabId: tabId,
-				windowId: windowId,
-			});
+			const response = await sendMessageWithRetry(
+				runtime,
+				{
+					type: MESSAGE_TYPES.CAPTURE_FULL_PAGE,
+					tabId: tabId,
+					windowId: windowId,
+				},
+				{ maxRetries: 3, baseDelay: 200, logger: log },
+			);
 
 			if (response?.error) {
 				throw new Error(response.error);
@@ -250,10 +256,14 @@ export function createSolveController({
 
 			// Fill one by one with progress
 			for (let i = 0; i < answers.length; i++) {
-				await runtime.sendMessage({
-					type: MESSAGE_TYPES.APPLY_ANSWERS,
-					answers: [answers[i]],
-				});
+				await sendMessageWithRetry(
+					runtime,
+					{
+						type: MESSAGE_TYPES.APPLY_ANSWERS,
+						answers: [answers[i]],
+					},
+					{ maxRetries: 2, baseDelay: 100, logger: log },
+				);
 
 				progress.setProgress(i + 1, answers.length);
 				// Small delay between fills
@@ -268,10 +278,14 @@ export function createSolveController({
 		 */
 		async submitAssignment(submitButtonId) {
 			log("Requesting assignment submission...");
-			const response = await runtime.sendMessage({
-				type: MESSAGE_TYPES.SUBMIT_ASSIGNMENT,
-				submitButtonId: submitButtonId,
-			});
+			const response = await sendMessageWithRetry(
+				runtime,
+				{
+					type: MESSAGE_TYPES.SUBMIT_ASSIGNMENT,
+					submitButtonId: submitButtonId,
+				},
+				{ maxRetries: 3, baseDelay: 200, logger: log },
+			);
 
 			if (response?.error) {
 				throw new Error(response.error);

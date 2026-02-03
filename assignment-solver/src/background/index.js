@@ -43,6 +43,11 @@ const screenshotService = createScreenshotService({
 
 // Create message handlers
 const handlers = {
+	// PING handler for health checks from UI
+	[MESSAGE_TYPES.PING]: (message, sender, sendResponse) => {
+		logger.log("Received PING from UI/sidebar");
+		sendResponse({ pong: true, timestamp: Date.now() });
+	},
 	[MESSAGE_TYPES.EXTRACT_HTML]: createExtractionHandler({
 		tabs: tabsAdapter,
 		scripting: scriptingAdapter,
