@@ -6,6 +6,7 @@ MOOC-utils provides tools for online course platforms:
 - `notice-reminders/`: Course search & notification CLI (Python 3.12+).
 
 ## Build, Test & Lint Commands
+Do not run the dev server only run the build command and lint commands.
 
 ### Browser Extension (`assignment-solver/`)
 **Package Manager**: Use `bun` (not npm).

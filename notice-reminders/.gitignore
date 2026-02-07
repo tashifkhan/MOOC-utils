@@ -68,3 +68,6 @@ coverage.xml
 # Hardware / Embedded specific (e.g., MicroPython/CircuitPython)
 /flash/
 /sd/
+
+.ruff_cache
+.opencode

@@ -1,73 +1,70 @@
+"""Root entry point for notice-reminders - choose between CLI and API modes."""
+
+import argparse
 import asyncio
 import sys
-from swayam_client import SwayamClient
-from models import Course
 
 
-async def main():
-    client = SwayamClient()
+def main():
+    parser = argparse.ArgumentParser(
+        description="MOOC Notice Reminders - Search courses and get announcements",
+        prog="notice-reminders",
+    )
 
-    print("Welcome to MOOC Course Search & Announcement Fetcher")
-    print("----------------------------------------------------")
+    subparsers = parser.add_subparsers(
+        dest="mode",
+        help="Mode to run",
+    )
 
-    while True:
-        query = input("\nEnter search query (or 'q' to quit): ").strip()
-        if query.lower() == "q":
-            break
+    # CLI mode
+    cli_parser = subparsers.add_parser(
+        "cli",
+        help="Run interactive CLI mode",
+    )
 
-        if not query:
-            continue
+    # API mode
+    api_parser = subparsers.add_parser(
+        "api",
+        help="Run FastAPI server",
+    )
+    api_parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind to (default: 127.0.0.1)",
+    )
+    api_parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind to (default: 8000)",
+    )
+    api_parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable auto-reload for development",
+    )
 
-        print(f"Searching for '{query}'...")
+    args = parser.parse_args()
 
-        try:
-            courses = await client.search_courses(query)
-        except Exception as e:
-            print(f"Error searching courses: {e}")
-            continue
+    if args.mode == "cli":
+        from app.cli import cli_main
 
-        if not courses:
-            print("No courses found.")
-            continue
+        asyncio.run(cli_main())
 
-        print(f"\nFound {len(courses)} courses:")
-        for i, course in enumerate(courses, 1):
-            print(f"{i}. {course}")
+    elif args.mode == "api":
+        import uvicorn
 
-        choice = input(
-            "\nSelect course number to view announcements (or 'c' to cancel): "
-        ).strip()
-        if choice.lower() == "c":
-            continue
+        uvicorn.run(
+            "app.api.main:app",
+            host=args.host,
+            port=args.port,
+            reload=args.reload,
+        )
 
-        try:
-            idx = int(choice) - 1
-            if 0 <= idx < len(courses):
-                selected_course = courses[idx]
-                print(
-                    f"\nFetching announcements for: {selected_course.title} ({selected_course.code})..."
-                )
-
-                try:
-                    announcements = await client.get_announcements(selected_course.code)
-
-                    if not announcements:
-                        print("No announcements found.")
-                    else:
-                        print(f"\n=== Announcements for {selected_course.title} ===")
-                        for ann in announcements:
-                            print(ann)
-                except Exception as e:
-                    print(f"Error fetching announcements: {e}")
-            else:
-                print("Invalid selection.")
-        except ValueError:
-            print("Invalid input.")
+    else:
+        parser.print_help()
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nGoodbye!")
-        sys.exit(0)
+    main()
