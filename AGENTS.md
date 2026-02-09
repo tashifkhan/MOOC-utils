@@ -7,6 +7,7 @@ MOOC-utils provides tools for online course platforms:
 
 ## Build, Test & Lint Commands
 Do not run the dev server only run the build command and lint commands.
+Do not run `npm run dev` or `bun dev`
 
 ### Browser Extension (`assignment-solver/`)
 **Package Manager**: Use `bun` (not npm).

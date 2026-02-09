@@ -71,3 +71,5 @@ coverage.xml
 
 .ruff_cache
 .opencode
+
+db.*
