@@ -38,6 +38,9 @@ class UserService:
     async def get_user(self, user_id: int) -> User | None:
         return await User.get_or_none(id=user_id)
 
+    async def get_user_by_email(self, email: str) -> User | None:
+        return await User.get_or_none(email=email)
+
     async def update_user(
         self,
         user: User,

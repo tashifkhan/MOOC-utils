@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     smtp_user: str | None = None
     smtp_password: str | None = None
     smtp_from: str | None = None
+    cors_origins: list[str] = ["http://localhost:3000"]
 
     class Config:
         env_file = ".env"

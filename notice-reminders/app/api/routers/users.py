@@ -38,6 +38,22 @@ async def list_users(
     return [UserResponse.model_validate(user) for user in users]
 
 
+@router.get("/by-email", response_model=UserResponse)
+async def get_user_by_email(
+    email: str,
+    service: UserService = Depends(get_user_service),
+) -> UserResponse:
+    user = await service.get_user_by_email(email)
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    return UserResponse.model_validate(user)
+
+
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: int,

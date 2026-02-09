@@ -42,9 +42,21 @@ async def create_subscription(
 
 @router.get("", response_model=list[SubscriptionResponse])
 async def list_subscriptions(
+    user_id: int | None = None,
     service: SubscriptionService = Depends(get_subscription_service),
 ) -> list[SubscriptionResponse]:
-    subscriptions = await service.list_subscriptions()
+    if user_id:
+        from app.models.user import User
+
+        user = await User.get_or_none(id=user_id)
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found",
+            )
+        subscriptions = await service.list_for_user(user)
+    else:
+        subscriptions = await service.list_subscriptions()
     return [SubscriptionResponse.model_validate(item) for item in subscriptions]
 
 
