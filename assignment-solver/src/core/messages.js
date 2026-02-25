@@ -3,22 +3,23 @@
  */
 
 export const MESSAGE_TYPES = {
-	// Content script communication
-	PING: "PING",
-	GET_PAGE_HTML: "GET_PAGE_HTML",
-	GET_PAGE_INFO: "GET_PAGE_INFO",
-	APPLY_ANSWERS: "APPLY_ANSWERS",
-	SUBMIT_ASSIGNMENT: "SUBMIT_ASSIGNMENT",
+  // Content script communication
+  PING: "PING",
+  GET_PAGE_HTML: "GET_PAGE_HTML",
+  GET_PAGE_INFO: "GET_PAGE_INFO",
+  APPLY_ANSWERS: "APPLY_ANSWERS",
+  SUBMIT_ASSIGNMENT: "SUBMIT_ASSIGNMENT",
 
-	// Background communication
-	EXTRACT_HTML: "EXTRACT_HTML",
-	CAPTURE_FULL_PAGE: "CAPTURE_FULL_PAGE",
-	GEMINI_REQUEST: "GEMINI_REQUEST",
+  // Background communication
+  EXTRACT_HTML: "EXTRACT_HTML",
+  CAPTURE_FULL_PAGE: "CAPTURE_FULL_PAGE",
+  GEMINI_REQUEST: "GEMINI_REQUEST",
+  GEMINI_DEBUG: "GEMINI_DEBUG",
 
-	// Internal
-	SCROLL_INFO: "SCROLL_INFO",
-	SCROLL_TO: "SCROLL_TO",
-	TAB_UPDATED: "TAB_UPDATED",
+  // Internal
+  SCROLL_INFO: "SCROLL_INFO",
+  SCROLL_TO: "SCROLL_TO",
+  TAB_UPDATED: "TAB_UPDATED",
 };
 
 /**
@@ -28,7 +29,7 @@ export const MESSAGE_TYPES = {
  * @returns {Message}
  */
 export function createMessage(type, payload) {
-	return { type, ...(payload && { payload }) };
+  return { type, ...(payload && { payload }) };
 }
 
 /**
@@ -44,51 +45,51 @@ export function createMessage(type, payload) {
  * @returns {Promise<any>} Response from background script
  */
 export async function sendMessageWithRetry(
-	runtime,
-	message,
-	{ maxRetries = 3, baseDelay = 150, logger = null } = {},
+  runtime,
+  message,
+  { maxRetries = 3, baseDelay = 150, logger = null } = {},
 ) {
-	const log = logger || (() => {});
-	let lastError = null;
+  const log = logger || (() => {});
+  let lastError = null;
 
-	for (let attempt = 0; attempt < maxRetries; attempt++) {
-		try {
-			if (attempt > 0) {
-				const delay = baseDelay * attempt;
-				log(`Retry attempt ${attempt}/${maxRetries - 1} after ${delay}ms...`);
-				await new Promise((resolve) => setTimeout(resolve, delay));
-			}
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        const delay = baseDelay * attempt;
+        log(`Retry attempt ${attempt}/${maxRetries - 1} after ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
 
-			const response = await runtime.sendMessage(message);
-			return response;
-		} catch (error) {
-			lastError = error;
-			const errorMsg = error?.message || String(error);
+      const response = await runtime.sendMessage(message);
+      return response;
+    } catch (error) {
+      lastError = error;
+      const errorMsg = error?.message || String(error);
 
-			// Check if this is a connection error that warrants retry
-			const isConnectionError =
-				errorMsg.includes("Receiving end does not exist") ||
-				errorMsg.includes("Could not establish connection") ||
-				errorMsg.includes("Extension context invalidated") ||
-				errorMsg.includes("The message port closed");
+      // Check if this is a connection error that warrants retry
+      const isConnectionError =
+        errorMsg.includes("Receiving end does not exist") ||
+        errorMsg.includes("Could not establish connection") ||
+        errorMsg.includes("Extension context invalidated") ||
+        errorMsg.includes("The message port closed");
 
-			if (!isConnectionError) {
-				// Non-connection error, don't retry
-				throw error;
-			}
+      if (!isConnectionError) {
+        // Non-connection error, don't retry
+        throw error;
+      }
 
-			log(`Connection error on attempt ${attempt + 1}: ${errorMsg}`);
+      log(`Connection error on attempt ${attempt + 1}: ${errorMsg}`);
 
-			if (attempt === maxRetries - 1) {
-				// Final attempt failed
-				throw new Error(
-					`Failed to communicate with background script after ${maxRetries} attempts. ` +
-					`Last error: ${errorMsg}. ` +
-					`Try reloading the extension or refreshing the page.`,
-				);
-			}
-		}
-	}
+      if (attempt === maxRetries - 1) {
+        // Final attempt failed
+        throw new Error(
+          `Failed to communicate with background script after ${maxRetries} attempts. ` +
+            `Last error: ${errorMsg}. ` +
+            `Try reloading the extension or refreshing the page.`,
+        );
+      }
+    }
+  }
 
-	throw lastError;
+  throw lastError;
 }
