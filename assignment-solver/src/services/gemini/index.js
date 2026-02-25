@@ -217,7 +217,7 @@ Title: ${pageInfo.title}`;
 			extractionResult,
 			images = [],
 			screenshots = [],
-			model = "gemini-3-pro-preview",
+			model = "gemini-3.1-pro-preview",
 			reasoningLevel = "high",
 		) {
 			const systemPrompt = `You are an expert at solving NPTEL course assignments.

@@ -79,7 +79,7 @@ export function createSettingsController({ elements, storage, logger = null }) {
 			await storage.saveModelPreferences({
 				extractionModel: extractionModel || "gemini-2.5-flash",
 				extractionReasoningLevel: extractionReasoning || "high",
-				solvingModel: solvingModel || "gemini-3-pro-preview",
+				solvingModel: solvingModel || "gemini-3.1-pro-preview",
 				solvingReasoningLevel: solvingReasoning || "high",
 			});
 			return true;
