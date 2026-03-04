@@ -13,83 +13,99 @@ import { MESSAGE_TYPES } from "../../core/messages.js";
  * @returns {Function} Handler function
  */
 export function createPageInfoHandler({ tabs, scripting, logger = null }) {
-	const log = logger?.log || (() => {});
+  const log = logger?.log || (() => {});
 
-	return async function handlePageInfo(message, sender, sendResponse) {
-		try {
-			log("Getting page info for assignment detection");
+  return async function handlePageInfo(message, sender, sendResponse) {
+    try {
+      log("Getting page info for assignment detection");
 
-			// Get active tab
-			const activeTabs = await tabs.query({ active: true, currentWindow: true });
-			if (!activeTabs?.length) {
-				sendResponse({ isAssignment: false, error: "No active tab" });
-				return;
-			}
+      // Use provided tabId or fall back to active tab
+      let activeTab;
 
-			const activeTab = activeTabs[0];
-			const tabId = activeTab.id;
+      if (message.tabId) {
+        log(`Using provided tab ID: ${message.tabId}`);
+        activeTab = await tabs.get(message.tabId);
+      } else {
+        const activeTabs = await tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (!activeTabs?.length) {
+          sendResponse({ isAssignment: false, error: "No active tab" });
+          return;
+        }
+        activeTab = activeTabs[0];
+      }
 
-			// Check if we're on an NPTEL assignment page
-			const url = activeTab.url || "";
-			const isNPTEL = url.includes("nptel.ac.in") || url.includes("swayam.gov.in");
-			const isAssignment = isNPTEL && (
-				url.includes("assessment") ||
-				url.includes("assignment") ||
-				url.includes("quiz") ||
-				url.includes("exam")
-			);
+      if (!activeTab) {
+        sendResponse({ isAssignment: false, error: "Tab not found" });
+        return;
+      }
 
-			if (!isAssignment) {
-				sendResponse({ isAssignment: false });
-				return;
-			}
+      const tabId = activeTab.id;
 
-			// Try to ping content script
-			let hasContentScript = false;
-			try {
-				await tabs.sendMessage(tabId, { type: MESSAGE_TYPES.PING });
-				hasContentScript = true;
-			} catch {
-				log("Content script not loaded, injecting...");
-			}
+      // Check if we're on an NPTEL assignment page
+      const url = activeTab.url || "";
+      const isNPTEL =
+        url.includes("nptel.ac.in") || url.includes("swayam.gov.in");
+      const isAssignment =
+        isNPTEL &&
+        (url.includes("assessment") ||
+          url.includes("assignment") ||
+          url.includes("quiz") ||
+          url.includes("exam"));
 
-			// Inject content script if needed
-			if (!hasContentScript) {
-				try {
-				await scripting.executeScript({
-					target: { tabId },
-					files: ["content.js"],
-				});
-				// Longer delay for Firefox to ensure script is fully initialized
-				await new Promise((resolve) => setTimeout(resolve, 300));
-				// Verify content script is responding
-				try {
-					await tabs.sendMessage(tabId, { type: MESSAGE_TYPES.PING });
-					log("Content script verified after injection");
-				} catch (verifyError) {
-					log(`Content script verification failed: ${verifyError.message}`);
-					// Try one more time with longer delay
-					await new Promise((r) => setTimeout(r, 200));
-				}
-				} catch (injectError) {
-					log(`Failed to inject content script: ${injectError.message}`);
-				}
-			}
+      if (!isAssignment) {
+        sendResponse({ isAssignment: false });
+        return;
+      }
 
-			// Get page info from content script
-			const pageData = await tabs.sendMessage(tabId, {
-				type: MESSAGE_TYPES.GET_PAGE_INFO,
-			});
+      // Try to ping content script
+      let hasContentScript = false;
+      try {
+        await tabs.sendMessage(tabId, { type: MESSAGE_TYPES.PING });
+        hasContentScript = true;
+      } catch {
+        log("Content script not loaded, injecting...");
+      }
 
-			sendResponse({
-				isAssignment: true,
-				title: pageData?.title || activeTab.title || "Assignment",
-				questionCount: pageData?.questionCount || 0,
-				url: url,
-			});
-		} catch (error) {
-			log(`Page info error: ${error.message}`);
-			sendResponse({ isAssignment: false, error: error.message });
-		}
-	};
+      // Inject content script if needed
+      if (!hasContentScript) {
+        try {
+          await scripting.executeScript({
+            target: { tabId },
+            files: ["content.js"],
+          });
+          // Longer delay for Firefox to ensure script is fully initialized
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          // Verify content script is responding
+          try {
+            await tabs.sendMessage(tabId, { type: MESSAGE_TYPES.PING });
+            log("Content script verified after injection");
+          } catch (verifyError) {
+            log(`Content script verification failed: ${verifyError.message}`);
+            // Try one more time with longer delay
+            await new Promise((r) => setTimeout(r, 200));
+          }
+        } catch (injectError) {
+          log(`Failed to inject content script: ${injectError.message}`);
+        }
+      }
+
+      // Get page info from content script
+      const pageData = await tabs.sendMessage(tabId, {
+        type: MESSAGE_TYPES.GET_PAGE_INFO,
+      });
+
+      sendResponse({
+        isAssignment: true,
+        title: pageData?.title || activeTab.title || "Assignment",
+        questionCount: pageData?.questionCount || 0,
+        url: url,
+      });
+    } catch (error) {
+      log(`Page info error: ${error.message}`);
+      sendResponse({ isAssignment: false, error: error.message });
+    }
+  };
 }

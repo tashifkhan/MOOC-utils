@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class SubscriptionCreate(BaseModel):
-    user_id: int
     course_code: str
 
 

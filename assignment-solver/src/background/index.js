@@ -70,8 +70,8 @@ const handlers = {
     const stage = message?.stage || "unknown";
     logger.log(`[Gemini][${stage}]`, message?.payload);
 
-    // Side panel messages don't have sender.tab, so query the active tab
-    let tabId = sender?.tab?.id;
+    // Use provided tabId, sender tab, or fall back to active tab
+    let tabId = message?.tabId || sender?.tab?.id;
     if (!tabId) {
       try {
         const tabs = await tabsAdapter.query({

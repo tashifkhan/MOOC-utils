@@ -21,15 +21,19 @@ export { browser };
  */
 export function detectBrowser() {
   // Check for Firefox-specific APIs
-  if (typeof browser !== "undefined" && browser.runtime && browser.runtime.getBrowserInfo) {
+  if (
+    typeof browser !== "undefined" &&
+    browser.runtime &&
+    browser.runtime.getBrowserInfo
+  ) {
     return "firefox";
   }
-  
+
   // Check for Chrome-specific APIs
   if (typeof chrome !== "undefined" && chrome.sidePanel) {
     return "chrome";
   }
-  
+
   // Default to chrome if can't detect
   return "chrome";
 }
@@ -59,7 +63,7 @@ export function isChrome() {
 export function getOptionalAPI(apiPath) {
   const parts = apiPath.split(".");
   let current = browser;
-  
+
   for (const part of parts) {
     if (current && typeof current[part] !== "undefined") {
       current = current[part];
@@ -67,7 +71,7 @@ export function getOptionalAPI(apiPath) {
       return null;
     }
   }
-  
+
   return typeof current === "function" ? current : null;
 }
 

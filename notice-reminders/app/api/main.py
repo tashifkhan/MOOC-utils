@@ -5,6 +5,7 @@ from app.core.config import Settings
 from app.core.database import register_database
 from app.api.routers import (
     announcements,
+    auth,
     courses,
     notifications,
     search,
@@ -26,6 +27,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(users.router)
+    app.include_router(auth.router)
     app.include_router(search.router)
     app.include_router(courses.router)
     app.include_router(announcements.router)

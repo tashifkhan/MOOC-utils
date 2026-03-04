@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class NotificationChannelCreate(BaseModel):
-    user_id: int
     channel: str
     address: str
     is_active: bool = True

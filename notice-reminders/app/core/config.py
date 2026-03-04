@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     smtp_from: str | None = None
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    jwt_secret: str
+    jwt_access_token_expire_minutes: int = 15
+    jwt_refresh_token_expire_days: int = 7
+    otp_expire_minutes: int = 10
+    otp_delivery: str = "console"
+    otp_length: int = 6
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

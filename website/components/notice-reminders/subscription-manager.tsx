@@ -7,7 +7,7 @@ import {
   listCourses,
   listAnnouncements,
 } from "@/lib/api";
-import type { User, Subscription, Course, Announcement } from "@/lib/types";
+import type { Subscription, Course, Announcement } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,18 +30,13 @@ import {
 import Link from "next/link";
 import { useState, useCallback } from "react";
 
-interface SubscriptionManagerProps {
-  user: User;
-}
-
-export function SubscriptionManager({ user }: SubscriptionManagerProps) {
+export function SubscriptionManager() {
   const queryClient = useQueryClient();
   const [expandedSub, setExpandedSub] = useState<number | null>(null);
 
   const { data: subscriptions = [], isLoading: loadingSubs } = useQuery({
     queryKey: ["subscriptions"],
     queryFn: () => listSubscriptions(),
-    select: (subs) => subs.filter((s) => s.user_id === user.id),
   });
 
   const { data: courses = [] } = useQuery({

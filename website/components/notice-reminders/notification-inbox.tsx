@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { listUserNotifications, markNotificationRead } from "@/lib/api";
-import type { User, Notification } from "@/lib/types";
+import { listNotifications, markNotificationRead } from "@/lib/api";
+import type { Notification } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -20,26 +20,22 @@ import {
   Inbox,
 } from "lucide-react";
 
-interface NotificationInboxProps {
-  user: User;
-}
-
-export function NotificationInbox({ user }: NotificationInboxProps) {
+export function NotificationInbox() {
   const queryClient = useQueryClient();
 
   const {
     data: notifications = [],
     isLoading,
   } = useQuery({
-    queryKey: ["notifications", user.id],
-    queryFn: () => listUserNotifications(user.id),
+    queryKey: ["notifications"],
+    queryFn: () => listNotifications(),
   });
 
   const markReadMutation = useMutation({
     mutationFn: markNotificationRead,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["notifications", user.id],
+        queryKey: ["notifications"],
       });
     },
   });

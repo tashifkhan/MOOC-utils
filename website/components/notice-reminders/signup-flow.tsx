@@ -2,22 +2,45 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Search, Loader2, Check, X, ChevronLeft, ChevronRight, Mail, MessageCircle, Bell, Sparkles } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  Check,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Mail,
+  MessageCircle,
+  Bell,
+  Sparkles,
+} from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { searchCourses, completeSignup } from "@/lib/api";
+import {
+  searchCourses,
+  createSubscription,
+  addNotificationChannel,
+  updateUser,
+} from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import type { Course } from "@/lib/types";
 
 // Form validation schemas
 const emailSchema = z.string().email("Please enter a valid email");
 const telegramSchema = z.string().min(1, "Telegram ID is required when enabled");
 
-type Step = "search" | "account" | "success";
+type Step = "search" | "account" | "verify" | "success";
 
 interface SignupData {
   selectedCourses: Course[];
@@ -26,6 +49,7 @@ interface SignupData {
   notifyEmail: boolean;
   notifyTelegram: boolean;
   telegramId: string;
+  otpCode: string;
 }
 
 const initialData: SignupData = {
@@ -35,6 +59,7 @@ const initialData: SignupData = {
   notifyEmail: true,
   notifyTelegram: false,
   telegramId: "",
+  otpCode: "",
 };
 
 export function SignupFlow() {
@@ -43,6 +68,8 @@ export function SignupFlow() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isNewUser, setIsNewUser] = useState(false);
+  const { requestOtp, verifyOtp, setUser } = useAuth();
 
   // Debounced search
   useEffect(() => {
@@ -57,22 +84,59 @@ export function SignupFlow() {
     enabled: debouncedQuery.length >= 2,
   });
 
-  // Signup mutation
-  const signupMutation = useMutation({
-    mutationFn: async () => {
-      return completeSignup({
-        email: data.email,
-        name: data.name || undefined,
-        notifyEmail: data.notifyEmail,
-        notifyTelegram: data.notifyTelegram,
-        telegramId: data.telegramId || undefined,
-        courseCodes: data.selectedCourses.map((c) => c.code),
-      });
+  const otpMutation = useMutation({
+    mutationFn: async () => requestOtp(data.email),
+    onSuccess: (response) => {
+      setIsNewUser(response.is_new_user);
+      setStep("verify");
     },
-    onSuccess: () => {
+  });
+
+  const otpError = otpMutation.error instanceof Error
+    ? otpMutation.error.message
+    : "Something went wrong. Please try again.";
+
+  const verifyMutation = useMutation({
+    mutationFn: async () => verifyOtp(data.email, data.otpCode),
+    onSuccess: async (status) => {
+      setUser(status.user);
+      if (data.name) {
+        await updateUser(status.user.id, { name: data.name });
+      }
+      const channelTasks: Promise<unknown>[] = [];
+      if (data.notifyEmail) {
+        channelTasks.push(
+          addNotificationChannel(status.user.id, {
+            channel: "email",
+            address: data.email,
+          })
+        );
+      }
+      if (data.notifyTelegram && data.telegramId) {
+        channelTasks.push(
+          addNotificationChannel(status.user.id, {
+            channel: "telegram",
+            address: data.telegramId,
+          })
+        );
+      }
+      if (channelTasks.length > 0) {
+        await Promise.all(channelTasks);
+      }
+      for (const course of data.selectedCourses) {
+        try {
+          await createSubscription({ course_code: course.code });
+        } catch (e) {
+          console.warn(`Failed to subscribe to ${course.code}:`, e);
+        }
+      }
       setStep("success");
     },
   });
+
+  const verifyError = verifyMutation.error instanceof Error
+    ? verifyMutation.error.message
+    : "Invalid or expired code.";
 
   const toggleCourse = (course: Course) => {
     setData((prev) => {
@@ -114,7 +178,11 @@ export function SignupFlow() {
       setStep("account");
     } else if (step === "account") {
       if (validateAccountStep()) {
-        signupMutation.mutate();
+        otpMutation.mutate();
+      }
+    } else if (step === "verify") {
+      if (data.otpCode.trim().length >= 6) {
+        verifyMutation.mutate();
       }
     }
   };
@@ -122,6 +190,8 @@ export function SignupFlow() {
   const handleBack = () => {
     if (step === "account") {
       setStep("search");
+    } else if (step === "verify") {
+      setStep("account");
     }
   };
 
@@ -131,6 +201,7 @@ export function SignupFlow() {
     setSearchQuery("");
     setDebouncedQuery("");
     setErrors({});
+    setIsNewUser(false);
   };
 
   return (
@@ -156,24 +227,24 @@ export function SignupFlow() {
 
         {/* Progress indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          {(["search", "account", "success"] as Step[]).map((s, i) => (
+          {(["search", "account", "verify", "success"] as Step[]).map((s, i) => (
             <div key={s} className="flex items-center">
               <div
                 className={cn(
                   "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
                   step === s
                     ? "bg-primary text-primary-foreground"
-                    : (["search", "account", "success"].indexOf(step) > i)
+                    : (["search", "account", "verify", "success"].indexOf(step) > i)
                     ? "bg-primary/20 text-primary"
                     : "bg-muted text-muted-foreground"
                 )}
               >
                 {i + 1}
               </div>
-              {i < 2 && (
+              {i < 3 && (
                 <div className={cn(
                   "w-12 h-0.5 mx-1 transition-colors",
-                  ["search", "account", "success"].indexOf(step) > i ? "bg-primary/40" : "bg-muted"
+                  ["search", "account", "verify", "success"].indexOf(step) > i ? "bg-primary/40" : "bg-muted"
                 )} />
               )}
             </div>
@@ -403,32 +474,83 @@ export function SignupFlow() {
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Back
                   </Button>
+                <Button
+                  onClick={handleNext}
+                  disabled={otpMutation.isPending}
+                  className="flex-1"
+                >
+                  {otpMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending code...
+                    </>
+                  ) : (
+                    <>
+                      Send code
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Error message */}
+              {otpMutation.isError && (
+                <p className="text-sm text-destructive text-center">{otpError}</p>
+              )}
+            </CardContent>
+            </>
+          )}
+
+          {step === "verify" && (
+            <>
+              <CardHeader>
+                <CardTitle>Verify your email</CardTitle>
+                <CardDescription>
+                  We sent a 6-digit code to {data.email}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {isNewUser && (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+                  New account detected. We will finish your profile after verification.
+                </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="otp">Verification code</Label>
+                  <Input
+                    id="otp"
+                    type="text"
+                    placeholder="123456"
+                    value={data.otpCode}
+                    onChange={(e) => setData((prev) => ({ ...prev, otpCode: e.target.value }))}
+                    className="tracking-[0.3em] text-center"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={handleBack} className="flex-1">
+                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
                   <Button
                     onClick={handleNext}
-                    disabled={signupMutation.isPending}
+                    disabled={verifyMutation.isPending || data.otpCode.trim().length < 6}
                     className="flex-1"
                   >
-                    {signupMutation.isPending ? (
+                    {verifyMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Subscribing...
+                        Verifying...
                       </>
                     ) : (
                       <>
-                        Subscribe
+                        Verify
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </>
                     )}
                   </Button>
                 </div>
-
-                {/* Error message */}
-                {signupMutation.isError && (
-                  <p className="text-sm text-destructive text-center">
-                    {signupMutation.error instanceof Error
-                      ? signupMutation.error.message
-                      : "Something went wrong. Please try again."}
-                  </p>
+                {verifyMutation.isError && (
+                  <p className="text-sm text-destructive text-center">{verifyError}</p>
                 )}
               </CardContent>
             </>

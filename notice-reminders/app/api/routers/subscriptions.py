@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.core.auth import require_auth
 from app.core.dependencies import (
     get_course_service,
     get_subscription_service,
-    get_user_service,
 )
+from app.models.user import User
 from app.schemas.subscription import SubscriptionCreate, SubscriptionResponse
 from app.services.course_service import CourseService
 from app.services.subscription_service import SubscriptionService
-from app.services.user_service import UserService
 
 router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 
@@ -16,19 +16,13 @@ router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 @router.post(
     "", response_model=SubscriptionResponse, status_code=status.HTTP_201_CREATED
 )
+@require_auth
 async def create_subscription(
     payload: SubscriptionCreate,
+    current_user: User,
     subscription_service: SubscriptionService = Depends(get_subscription_service),
-    user_service: UserService = Depends(get_user_service),
     course_service: CourseService = Depends(get_course_service),
 ) -> SubscriptionResponse:
-    user = await user_service.get_user(payload.user_id)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-
     course = await course_service.get_by_code(payload.course_code)
     if not course:
         raise HTTPException(
@@ -36,33 +30,25 @@ async def create_subscription(
             detail="Course not found",
         )
 
-    subscription = await subscription_service.subscribe(user, course)
+    subscription = await subscription_service.subscribe(current_user, course)
     return SubscriptionResponse.model_validate(subscription)
 
 
 @router.get("", response_model=list[SubscriptionResponse])
+@require_auth
 async def list_subscriptions(
-    user_id: int | None = None,
+    current_user: User,
     service: SubscriptionService = Depends(get_subscription_service),
 ) -> list[SubscriptionResponse]:
-    if user_id:
-        from app.models.user import User
-
-        user = await User.get_or_none(id=user_id)
-        if not user:
-            raise HTTPException(
-                status_code=404,
-                detail="User not found",
-            )
-        subscriptions = await service.list_for_user(user)
-    else:
-        subscriptions = await service.list_subscriptions()
+    subscriptions = await service.list_for_user(current_user)
     return [SubscriptionResponse.model_validate(item) for item in subscriptions]
 
 
 @router.delete("/{subscription_id}", status_code=status.HTTP_204_NO_CONTENT)
+@require_auth
 async def delete_subscription(
     subscription_id: int,
+    current_user: User,
     service: SubscriptionService = Depends(get_subscription_service),
 ) -> None:
     from app.models.subscription import Subscription
@@ -73,6 +59,12 @@ async def delete_subscription(
         raise HTTPException(
             status_code=404,
             detail="Subscription not found",
+        )
+
+    if subscription.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
         )
 
     await service.delete(subscription)

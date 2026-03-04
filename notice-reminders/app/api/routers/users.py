@@ -1,64 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.core.auth import require_auth
 from app.core.dependencies import get_notification_channel_service, get_user_service
+from app.models.user import User
 from app.schemas.notification_channel import (
     NotificationChannelCreate,
     NotificationChannelResponse,
 )
-from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from app.schemas.user import UserResponse, UserUpdate
 from app.services.notification_channel_service import NotificationChannelService
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(
-    payload: UserCreate,
-    service: UserService = Depends(get_user_service),
-) -> UserResponse:
-    if payload.notify_telegram and not payload.telegram_id:
-        raise HTTPException(
-            status_code=400,
-            detail="telegram_id required when notify_telegram is true",
-        )
-
-    if payload.notify_email and not payload.notification_email:
-        payload.notification_email = payload.email
-
-    user = await service.create_user(payload)
-    return UserResponse.model_validate(user)
-
-
-@router.get("", response_model=list[UserResponse])
-async def list_users(
-    service: UserService = Depends(get_user_service),
-) -> list[UserResponse]:
-    users = await service.list_users()
-    return [UserResponse.model_validate(user) for user in users]
-
-
-@router.get("/by-email", response_model=UserResponse)
-async def get_user_by_email(
-    email: str,
-    service: UserService = Depends(get_user_service),
-) -> UserResponse:
-    user = await service.get_user_by_email(email)
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-
-    return UserResponse.model_validate(user)
-
-
 @router.get("/{user_id}", response_model=UserResponse)
+@require_auth
 async def get_user(
     user_id: int,
+    current_user: User,
     service: UserService = Depends(get_user_service),
 ) -> UserResponse:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
     user = await service.get_user(user_id)
 
     if not user:
@@ -71,11 +39,19 @@ async def get_user(
 
 
 @router.patch("/{user_id}", response_model=UserResponse)
+@require_auth
 async def update_user(
     user_id: int,
     payload: UserUpdate,
+    current_user: User,
     service: UserService = Depends(get_user_service),
 ) -> UserResponse:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
     user = await service.get_user(user_id)
 
     if not user:
@@ -89,10 +65,18 @@ async def update_user(
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@require_auth
 async def delete_user(
     user_id: int,
+    current_user: User,
     service: UserService = Depends(get_user_service),
 ) -> None:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
     user = await service.get_user(user_id)
 
     if not user:
@@ -109,16 +93,24 @@ async def delete_user(
     response_model=NotificationChannelResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@require_auth
 async def add_channel(
     user_id: int,
     payload: NotificationChannelCreate,
+    current_user: User,
     service: NotificationChannelService = Depends(get_notification_channel_service),
     user_service: UserService = Depends(get_user_service),
 ) -> NotificationChannelResponse:
-    if payload.user_id != user_id:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
+    if payload.channel == "telegram" and not payload.address:
         raise HTTPException(
             status_code=400,
-            detail="User ID mismatch",
+            detail="address required when channel is telegram",
         )
 
     user = await user_service.get_user(user_id)
@@ -133,11 +125,19 @@ async def add_channel(
 
 
 @router.get("/{user_id}/channels", response_model=list[NotificationChannelResponse])
+@require_auth
 async def list_channels(
     user_id: int,
+    current_user: User,
     service: NotificationChannelService = Depends(get_notification_channel_service),
     user_service: UserService = Depends(get_user_service),
 ) -> list[NotificationChannelResponse]:
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
     user = await user_service.get_user(user_id)
 
     if not user:

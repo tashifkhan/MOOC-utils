@@ -5,33 +5,11 @@ from tortoise.exceptions import IntegrityError
 
 from app.models.notification_channel import NotificationChannel
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserUpdate
 
 
 @final
 class UserService:
-    async def create_user(self, payload: UserCreate) -> User:
-        user = await User.create(
-            email=payload.email,
-            name=payload.name,
-            telegram_id=payload.telegram_id,
-        )
-
-        if payload.notify_telegram and payload.telegram_id:
-            _ = await NotificationChannel.create(
-                user=user,
-                channel="telegram",
-                address=payload.telegram_id,
-            )
-
-        if payload.notify_email and payload.notification_email:
-            _ = await NotificationChannel.create(
-                user=user,
-                channel="email",
-                address=payload.notification_email,
-            )
-        return user
-
     async def list_users(self) -> list[User]:
         return await User.all().order_by("email")
 

@@ -16,6 +16,8 @@ def get_tortoise_config(database_url: str) -> dict[str, Any]:
                     "app.models.subscription",
                     "app.models.notification",
                     "app.models.notification_channel",
+                    "app.models.otp",
+                    "app.models.refresh_token",
                 ],
                 "default_connection": "default",
             }

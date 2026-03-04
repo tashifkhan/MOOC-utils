@@ -8,9 +8,9 @@
  * @returns {string} Escaped text
  */
 export function escapeHtml(text) {
-	const div = document.createElement("div");
-	div.textContent = text || "";
-	return div.innerHTML;
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
 }
 
 /**
@@ -19,10 +19,10 @@ export function escapeHtml(text) {
  * @returns {string} Formatted type
  */
 export function formatQuestionType(type) {
-	const map = {
-		single_choice: "MCQ",
-		multi_choice: "MSQ",
-		fill_blank: "Fill",
-	};
-	return map[type] || type;
+  const map = {
+    single_choice: "MCQ",
+    multi_choice: "MSQ",
+    fill_blank: "Fill",
+  };
+  return map[type] || type;
 }

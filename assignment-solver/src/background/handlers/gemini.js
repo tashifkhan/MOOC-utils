@@ -10,21 +10,25 @@
  * @returns {Function} Handler function
  */
 export function createGeminiHandler({ geminiService, logger = null }) {
-	const log = logger?.log || (() => {});
+  const log = logger?.log || (() => {});
 
-	return async function handleGeminiRequest(message, sender, sendResponse) {
-		try {
-			log("Handling GEMINI_REQUEST");
-			const { apiKey, payload, model } = message;
+  return async function handleGeminiRequest(message, sender, sendResponse) {
+    try {
+      log("Handling GEMINI_REQUEST");
+      const { apiKey, payload, model } = message;
 
-			// Use direct API call from background worker
-			const response = await geminiService.directAPICall(apiKey, payload, model);
-			log("Gemini API response received");
+      // Use direct API call from background worker
+      const response = await geminiService.directAPICall(
+        apiKey,
+        payload,
+        model,
+      );
+      log("Gemini API response received");
 
-			sendResponse(response);
-		} catch (error) {
-			log(`Gemini handler error: ${error.message}`);
-			sendResponse({ error: error.message });
-		}
-	};
+      sendResponse(response);
+    } catch (error) {
+      log(`Gemini handler error: ${error.message}`);
+      sendResponse({ error: error.message });
+    }
+  };
 }

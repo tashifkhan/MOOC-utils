@@ -15,8 +15,9 @@ import { browser, isFirefox, isChrome, hasAPI } from "./browser.js";
  */
 export function createPanelAdapter({ logger = null } = {}) {
   const log = logger?.log || (() => {});
-  const logError = logger?.error || console.error.bind(console, "[PanelAdapter]");
-  
+  const logError =
+    logger?.error || console.error.bind(console, "[PanelAdapter]");
+
   const firefox = isFirefox();
   const chrome = isChrome();
 

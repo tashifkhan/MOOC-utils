@@ -1,7 +1,6 @@
 // API client for notice-reminders backend
 import type {
   User,
-  UserCreate,
   UserUpdate,
   Course,
   Subscription,
@@ -10,6 +9,8 @@ import type {
   NotificationChannelCreate,
   Announcement,
   Notification,
+  OtpRequestResponse,
+  AuthStatus,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -31,6 +32,7 @@ async function request<T>(
   const url = `${API_BASE}${endpoint}`;
   const res = await fetch(url, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
@@ -50,27 +52,8 @@ async function request<T>(
   return res.json();
 }
 
-// Users
-export async function createUser(data: UserCreate): Promise<User> {
-  return request<User>("/users", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
 export async function getUser(userId: number): Promise<User> {
   return request<User>(`/users/${userId}`);
-}
-
-export async function getUserByEmail(email: string): Promise<User | null> {
-  try {
-    return await request<User>(`/users/by-email?email=${encodeURIComponent(email)}`);
-  } catch (e) {
-    if (e instanceof APIError && e.status === 404) {
-      return null;
-    }
-    throw e;
-  }
 }
 
 export async function updateUser(
@@ -122,9 +105,8 @@ export async function createSubscription(
   });
 }
 
-export async function listSubscriptions(userId?: number): Promise<Subscription[]> {
-  const query = userId ? `?user_id=${userId}` : "";
-  return request<Subscription[]>(`/subscriptions${query}`);
+export async function listSubscriptions(): Promise<Subscription[]> {
+  return request<Subscription[]>(`/subscriptions`);
 }
 
 export async function deleteSubscription(subscriptionId: number): Promise<void> {
@@ -155,11 +137,6 @@ export async function listNotifications(): Promise<Notification[]> {
   return request<Notification[]>("/notifications");
 }
 
-export async function listUserNotifications(
-  userId: number
-): Promise<Notification[]> {
-  return request<Notification[]>(`/notifications/users/${userId}`);
-}
 
 export async function markNotificationRead(
   notificationId: number
@@ -169,51 +146,38 @@ export async function markNotificationRead(
   });
 }
 
-// Convenience: full signup flow
-export async function completeSignup(params: {
-  email: string;
-  name?: string;
-  notifyEmail: boolean;
-  notifyTelegram: boolean;
-  telegramId?: string;
-  courseCodes: string[];
-}): Promise<{
-  user: User;
-  subscriptions: Subscription[];
-}> {
-  // 1. Create or get user
-  let user: User;
-  const existing = await getUserByEmail(params.email);
-  
-  if (existing) {
-    user = existing;
-  } else {
-    user = await createUser({
-      email: params.email,
-      name: params.name,
-      notify_email: params.notifyEmail,
-      notify_telegram: params.notifyTelegram,
-      telegram_id: params.telegramId,
-      notification_email: params.notifyEmail ? params.email : undefined,
-    });
-  }
+// Auth
+export async function requestOtp(email: string): Promise<OtpRequestResponse> {
+  return request<OtpRequestResponse>("/auth/request-otp", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
 
-  // 2. Create subscriptions
-  const subscriptions: Subscription[] = [];
-  for (const courseCode of params.courseCodes) {
-    try {
-      const sub = await createSubscription({
-        user_id: user.id,
-        course_code: courseCode,
-      });
-      subscriptions.push(sub);
-    } catch (e) {
-      // May already be subscribed, continue
-      console.warn(`Failed to subscribe to ${courseCode}:`, e);
-    }
-  }
+export async function verifyOtp(
+  email: string,
+  code: string
+): Promise<AuthStatus> {
+  return request<AuthStatus>("/auth/verify-otp", {
+    method: "POST",
+    body: JSON.stringify({ email, code }),
+  });
+}
 
-  return { user, subscriptions };
+export async function refreshSession(): Promise<AuthStatus> {
+  return request<AuthStatus>("/auth/refresh", {
+    method: "POST",
+  });
+}
+
+export async function logout(): Promise<void> {
+  return request<void>("/auth/logout", {
+    method: "POST",
+  });
+}
+
+export async function getMe(): Promise<User> {
+  return request<User>("/auth/me");
 }
 
 export { APIError };

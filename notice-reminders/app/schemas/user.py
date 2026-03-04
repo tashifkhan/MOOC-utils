@@ -3,15 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 
-class UserCreate(BaseModel):
-    email: EmailStr
-    name: str | None = None
-    telegram_id: str | None = None
-    notify_telegram: bool = False
-    notify_email: bool = False
-    notification_email: EmailStr | None = None
-
-
 class UserUpdate(BaseModel):
     email: EmailStr | None = None
     name: str | None = None

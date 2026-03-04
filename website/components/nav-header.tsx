@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { Bell, Menu, X, LayoutDashboard } from "lucide-react";
+import { Bell, Menu, X, LayoutDashboard, LogIn, LogOut } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useAuth } from "@/lib/auth-context";
 
 const navLinks = [
   { href: "/notice-reminders", label: "Notice Reminders" },
@@ -15,6 +16,7 @@ const navLinks = [
 export function NavHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -59,16 +61,41 @@ export function NavHeader() {
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-2">
             <ModeToggle />
-            <Link
-              href="/notice-reminders/dashboard"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "gap-1.5"
-              )}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  href="/notice-reminders/dashboard"
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "gap-1.5"
+                  )}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={logout}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "gap-1.5"
+                  )}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/notice-reminders/login"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "sm" }),
+                  "gap-1.5"
+                )}
+              >
+                <LogIn className="w-4 h-4" />
+                Login
+              </Link>
+            )}
             <Link
               href="/notice-reminders"
               className={cn(
@@ -114,17 +141,46 @@ export function NavHeader() {
                <div className="flex justify-end px-2">
                  <ModeToggle />
                </div>
-              <Link
-                href="/notice-reminders/dashboard"
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "w-full justify-center gap-1.5"
-                )}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                Dashboard
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/notice-reminders/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      "w-full justify-center gap-1.5"
+                    )}
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileOpen(false);
+                    }}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      "w-full justify-center gap-1.5"
+                    )}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/notice-reminders/login"
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "w-full justify-center gap-1.5"
+                  )}
+                >
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+              )}
               <Link
                 href="/notice-reminders"
                 onClick={() => setMobileOpen(false)}

@@ -3,7 +3,8 @@
 ## Context
 MOOC-utils provides tools for online course platforms:
 - `assignment-solver/`: Chrome/Firefox extension for assignment assistance (Vanilla JS + Vite).
-- `notice-reminders/`: Course search & notification CLI (Python 3.12+).
+- `notice-reminders/`: Course search, notifications CLI, and FastAPI backend (Python 3.12+).
+- `website/`: Next.js landing site + Notice Reminders dashboard.
 
 ## Build, Test & Lint Commands
 Do not run the dev server only run the build command and lint commands.
@@ -53,12 +54,36 @@ uv sync                 # Install dependencies (httpx, beautifulsoup4)
 uv run python main.py
 ```
 
-**Lint & Format**:
+**API**:
 ```bash
-ruff check .            # Lint all files
-ruff check main.py      # Lint single file
-ruff format .           # Format all files
-pyright .               # Type check
+uv run python main.py api
+```
+
+**Auth Notes**:
+- Email OTP login/signup with JWT access + refresh cookies.
+- Public endpoints: `GET /search`, `GET /courses`, `GET /courses/{code}`.
+- All other API routes require authentication.
+
+### Website (`website/`)
+**Package Manager**: Use `bun`.
+
+**Setup**:
+```bash
+cd website
+bun install
+```
+
+**Environment**:
+- `NEXT_PUBLIC_API_URL` should point to the FastAPI backend (defaults to `http://localhost:8000`).
+
+**Build**:
+```bash
+bun run build
+```
+
+**Lint**:
+```bash
+bun run lint
 ```
 
 ## Code Style & Conventions
@@ -115,6 +140,18 @@ export function createServiceName({ dep1, dep2, logger = null }) {
 - **Parsing**: `BeautifulSoup` for HTML. Handle dynamic dates (embedded JS) by parsing or fallback text.
 - **Models**: Use `dataclasses` for structured data (`Course`, `Announcement`).
 - **CLI**: Interactive loop in `main.py`, separation of concerns between logic (`swayam_client.py`) and UI.
+
+### Website (Next.js)
+- **Routes**:
+  - `/` landing page
+  - `/notice-reminders` signup flow
+  - `/notice-reminders/login` OTP login
+  - `/notice-reminders/dashboard` authenticated dashboard
+  - `/assignment-solver` extension page
+- **Auth**: Email OTP login/signup with httpOnly cookies from the backend.
+- **API Client**: `lib/api.ts` uses `credentials: "include"` for cookie auth.
+- **State**: `lib/auth-context.tsx` hydrates session via `GET /auth/me`.
+- **Public Data**: Course search and browse remain unauthenticated; announcements and dashboard require auth.
 
 ## Development Workflow
 1. **Analyze**: Check existing file structure and patterns before creating new files.

@@ -17,14 +17,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { searchCourses, createSubscription } from "@/lib/api";
-import type { User, Course } from "@/lib/types";
+import type { Course } from "@/lib/types";
 import { toast } from "sonner";
 
-interface AddSubscriptionProps {
-  user: User;
-}
-
-export function AddSubscription({ user }: AddSubscriptionProps) {
+export function AddSubscription() {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -48,12 +44,11 @@ export function AddSubscription({ user }: AddSubscriptionProps) {
   const subscribeMutation = useMutation({
     mutationFn: async (courseCode: string) => {
       return createSubscription({
-        user_id: user.id,
         course_code: courseCode,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subscriptions", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
       toast.success(`Subscribed to ${selectedCourse?.title}`);
       setOpen(false);
       resetState();

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.core.auth import require_auth
+from app.models.user import User
 from app.core.dependencies import get_announcement_service, get_course_service
 from app.schemas.announcement import AnnouncementResponse
 from app.services.announcement_service import AnnouncementService
@@ -11,8 +13,10 @@ router = APIRouter(
 
 
 @router.get("", response_model=list[AnnouncementResponse])
+@require_auth
 async def list_announcements(
     course_code: str,
+    current_user: User,
     course_service: CourseService = Depends(get_course_service),
     announcement_service: AnnouncementService = Depends(get_announcement_service),
 ) -> list[AnnouncementResponse]:

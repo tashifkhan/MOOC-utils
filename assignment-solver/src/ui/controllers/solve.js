@@ -71,6 +71,11 @@ export function createSolveController({
           );
         }
 
+        // Pin the target tab so all subsequent messages go to the correct tab
+        // even if the user switches to a different tab
+        const targetTabId = pageData.tabId;
+        log(`Pinned target tab ID: ${targetTabId}`);
+
         // Capture full-page screenshots
         elements.progressTitle.textContent = "Capturing page screenshots...";
         progress.setStatus("Taking screenshots...", "loading");
@@ -78,7 +83,7 @@ export function createSolveController({
         let screenshots = [];
         try {
           const screenshotResult = await this.captureFullPageScreenshots(
-            pageData.tabId,
+            targetTabId,
             pageData.windowId,
           );
           screenshots = screenshotResult?.screenshots || [];
@@ -120,6 +125,7 @@ export function createSolveController({
             runtime,
             {
               type: MESSAGE_TYPES.GEMINI_DEBUG,
+              tabId: targetTabId,
               stage: "extract",
               payload: extraction,
             },
@@ -151,6 +157,7 @@ export function createSolveController({
             runtime,
             {
               type: MESSAGE_TYPES.GEMINI_DEBUG,
+              tabId: targetTabId,
               stage: "solve",
               payload: solvedExtraction,
             },
@@ -184,7 +191,7 @@ export function createSolveController({
         elements.progressTitle.textContent = "Filling answers...";
         progress.setStatus("Filling answers...", "loading");
 
-        await this.fillAllAnswers(solvedExtraction.questions);
+        await this.fillAllAnswers(solvedExtraction.questions, targetTabId);
         progress.markStepDone("fill");
 
         // Step 4: Submit (if enabled)
@@ -194,7 +201,10 @@ export function createSolveController({
           elements.progressTitle.textContent = "Submitting...";
           progress.setStatus("Submitting...", "loading");
 
-          await this.submitAssignment(solvedExtraction.submit_button_id);
+          await this.submitAssignment(
+            solvedExtraction.submit_button_id,
+            targetTabId,
+          );
           progress.markStepDone("submit");
           progress.setStatus("Assignment submitted!");
         } else {
@@ -214,6 +224,7 @@ export function createSolveController({
             runtime,
             {
               type: MESSAGE_TYPES.GEMINI_DEBUG,
+              tabId: targetTabId,
               stage: "error",
               payload: { error: error.message, stack: error.stack },
             },
@@ -602,8 +613,9 @@ export function createSolveController({
      * Fill all answers on the page
      * @private
      * @param {Array<ExtractedQuestion>} questions - Questions to fill
+     * @param {number} [tabId] - Target tab ID
      */
-    async fillAllAnswers(questions) {
+    async fillAllAnswers(questions, tabId) {
       const answers = questions.map((q) => ({
         question_id: q.question_id,
         question_type: q.question_type,
@@ -620,6 +632,7 @@ export function createSolveController({
           runtime,
           {
             type: MESSAGE_TYPES.APPLY_ANSWERS,
+            tabId: tabId,
             answers: [answers[i]],
           },
           { maxRetries: 2, baseDelay: 100, logger: log },
@@ -635,13 +648,15 @@ export function createSolveController({
      * Submit assignment
      * @private
      * @param {string} submitButtonId - ID of submit button
+     * @param {number} [tabId] - Target tab ID
      */
-    async submitAssignment(submitButtonId) {
+    async submitAssignment(submitButtonId, tabId) {
       log("Requesting assignment submission...");
       const response = await sendMessageWithRetry(
         runtime,
         {
           type: MESSAGE_TYPES.SUBMIT_ASSIGNMENT,
+          tabId: tabId,
           submitButtonId: submitButtonId,
         },
         { maxRetries: 3, baseDelay: 200, logger: log },

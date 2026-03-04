@@ -11,15 +11,6 @@ export interface User {
   updated_at: string;
 }
 
-export interface UserCreate {
-  email: string;
-  name?: string;
-  telegram_id?: string;
-  notify_telegram?: boolean;
-  notify_email?: boolean;
-  notification_email?: string;
-}
-
 export interface UserUpdate {
   email?: string;
   name?: string;
@@ -50,7 +41,6 @@ export interface Subscription {
 }
 
 export interface SubscriptionCreate {
-  user_id: number;
   course_code: string;
 }
 
@@ -67,10 +57,21 @@ export interface NotificationChannel {
 }
 
 export interface NotificationChannelCreate {
-  user_id: number;
   channel: ChannelType;
   address: string;
   is_active?: boolean;
+}
+
+// ─── Auth ────────────────────────────────────────────────
+export interface OtpRequestResponse {
+  message: string;
+  is_new_user: boolean;
+  expires_at: string;
+}
+
+export interface AuthStatus {
+  user: User;
+  is_new_user: boolean;
 }
 
 // ─── Announcements ──────────────────────────────────────
