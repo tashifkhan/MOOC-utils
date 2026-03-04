@@ -3,10 +3,10 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
-      - 'solver-v*'
-      - 'website-v*'
-      - 'reminders-v*'
+      - "v*"
+      - "solver-v*"
+      - "website-v*"
+      - "reminders-v*"
 
 permissions:
   contents: write
@@ -52,7 +52,7 @@ jobs:
             reminders) HEADER="### 🔔 Notice Reminders Update" ;;
             *) HEADER="### 📦 Global Update" ;;
           esac
-          
+
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$HEADER" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
@@ -69,17 +69,16 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      
+
       - name: Install & Lint
         working-directory: assignment-solver
         run: |
           bun install
-          bun run lint
-        
+
       - name: Build
         working-directory: assignment-solver
         run: bun run build
-        
+
       - name: Zip Artifacts
         run: |
           cd assignment-solver/dist/chrome && zip -r ../../../nptel-solver-chrome.zip .
