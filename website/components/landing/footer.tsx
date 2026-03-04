@@ -9,10 +9,12 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group w-fit">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <span className="text-primary-foreground font-display font-bold text-sm leading-none">
-                  M
-                </span>
+              <div className="w-8 h-8 flex items-center justify-center transition-transform group-hover:scale-105 overflow-hidden">
+                <img
+                  src="/logo-solver.png"
+                  alt="MOOC Utils Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="font-display font-bold text-lg tracking-tight">
                 MOOC Utils
@@ -65,34 +67,34 @@ export function Footer() {
             </h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <a
+                <Link
                   href="https://github.com/tashifkhan/MOOC-utils"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   GitHub Repository
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="https://github.com/tashifkhan/MOOC-utils/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Report an Issue
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="https://github.com/tashifkhan/MOOC-utils/releases"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Changelog
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -112,14 +114,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="https://github.com/tashifkhan/MOOC-utils/discussions"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Discussions
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -130,14 +132,14 @@ export function Footer() {
           <p>© {new Date().getFullYear()} MOOC Utils — MIT License</p>
           <p>
             Built by{" "}
-            <a
+            <Link
               href="https://github.com/tashifkhan"
               target="_blank"
               rel="noopener noreferrer"
               className="text-foreground hover:underline underline-offset-2"
             >
-              Tashif Khan
-            </a>
+              taf
+            </Link>
           </p>
         </div>
       </div>

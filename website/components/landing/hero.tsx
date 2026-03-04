@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Bell, Puzzle, ArrowRight, Zap, Lock } from "lucide-react";
+import { Puzzle, ArrowRight, Zap, Lock } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -45,14 +45,14 @@ export function Hero() {
               style={{ fontSize: "clamp(3rem, 7vw, 5.5rem)" }}
             >
               <span className="block text-foreground">Ace every</span>
-              <span className="block italic text-primary">assignment.</span>
-              <span className="block text-foreground">Miss nothing.</span>
+              <span className="block italic text-primary">NPTEL</span>
+              <span className="block text-foreground">assignment.</span>
             </h1>
 
             {/* Subtext */}
             <p className="text-base sm:text-lg text-muted-foreground max-w-sm leading-relaxed animate-in fade-in duration-700 delay-200">
-              Two precision tools for NPTEL &amp; SWAYAM students. AI-powered
-              assignment help in your browser, and smart course notifications.
+              The #1 study toolkit for NPTEL & SWAYAM students. AI-powered
+              assignment help and smart course notifications for MOOC learners.
             </p>
 
             {/* CTAs */}
@@ -61,7 +61,7 @@ export function Hero() {
                 href="/assignment-solver"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "group h-12 px-7 text-base gap-2.5"
+                  "group h-12 px-7 text-base gap-2.5",
                 )}
               >
                 <Puzzle className="w-4 h-4" />
@@ -74,11 +74,15 @@ export function Hero() {
                 <div
                   className={cn(
                     buttonVariants({ size: "lg", variant: "outline" }),
-                    "h-12 px-7 text-base gap-2.5 cursor-not-allowed opacity-50 pointer-events-none select-none"
+                    "h-12 px-7 text-base gap-2.5 cursor-not-allowed opacity-50 pointer-events-none select-none",
                   )}
                   aria-disabled="true"
                 >
-                  <Bell className="w-4 h-4" />
+                  <img
+                    src="/logo-reminders.png"
+                    alt=""
+                    className="w-4 h-4 grayscale opacity-50"
+                  />
                   Get Notifications
                 </div>
                 <span className="absolute -top-2.5 -right-2.5 bg-primary text-primary-foreground text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full leading-none shadow-sm">
@@ -132,8 +136,12 @@ export function Hero() {
                 <div className="flex-1 bg-background/70 rounded-md px-3 py-1 text-[11px] font-mono text-muted-foreground truncate">
                   nptel.swayam.gov.in / week-8-assignment
                 </div>
-                <div className="shrink-0 w-7 h-5 bg-chart-4/15 border border-chart-4/30 rounded flex items-center justify-center">
-                  <Puzzle className="w-3 h-3 text-chart-4" />
+                <div className="shrink-0 w-7 h-5 relative flex items-center justify-center overflow-hidden">
+                  <img
+                    src="/logo-solver.png"
+                    alt="Solver Logo"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
 
@@ -151,10 +159,26 @@ export function Hero() {
                   </p>
                   <div className="space-y-2">
                     {[
-                      { label: "A", text: "Bubble Sort — O(n²)", correct: false },
-                      { label: "B", text: "Merge Sort — O(n log n)", correct: true },
-                      { label: "C", text: "Counting Sort — O(n + k)", correct: false },
-                      { label: "D", text: "Insertion Sort — O(n²)", correct: false },
+                      {
+                        label: "A",
+                        text: "Bubble Sort — O(n²)",
+                        correct: false,
+                      },
+                      {
+                        label: "B",
+                        text: "Merge Sort — O(n log n)",
+                        correct: true,
+                      },
+                      {
+                        label: "C",
+                        text: "Counting Sort — O(n + k)",
+                        correct: false,
+                      },
+                      {
+                        label: "D",
+                        text: "Insertion Sort — O(n²)",
+                        correct: false,
+                      },
                     ].map((opt) => (
                       <div
                         key={opt.label}
@@ -162,7 +186,7 @@ export function Hero() {
                           "text-xs px-3 py-2 rounded-lg border flex items-center gap-2.5",
                           opt.correct
                             ? "bg-chart-4/10 border-chart-4/40 text-chart-4 font-medium"
-                            : "bg-muted/30 border-border/40 text-muted-foreground"
+                            : "bg-muted/30 border-border/40 text-muted-foreground",
                         )}
                       >
                         <span className="font-mono text-[10px] opacity-60 shrink-0 w-4">
@@ -203,7 +227,7 @@ export function Hero() {
                         >
                           {tag}
                         </span>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -214,7 +238,13 @@ export function Hero() {
             <div className="absolute -bottom-8 -left-10 w-58 bg-card border border-border/70 rounded-xl p-4 shadow-xl grayscale opacity-45 select-none pointer-events-none">
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
-                  <Bell className="w-3.5 h-3.5 text-muted-foreground" />
+                  <div className="w-5 h-5 overflow-hidden flex items-center justify-center">
+                    <img
+                      src="/logo-reminders.png"
+                      alt="Reminders Logo"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                   <span className="text-xs font-semibold text-muted-foreground">
                     Notice Reminders
                   </span>

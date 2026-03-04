@@ -30,10 +30,12 @@ export function NavHeader() {
         <nav className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-primary-foreground font-display font-bold text-sm leading-none">
-                M
-              </span>
+            <div className="w-9 h-9 flex items-center justify-center transition-transform group-hover:scale-105 overflow-hidden">
+              <img
+                src="/logo-solver.png"
+                alt="MOOC Utils Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="font-display font-bold text-lg tracking-tight">
               MOOC Utils

@@ -26,22 +26,55 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MOOC Utils - Your MOOC Superpower Suite",
+  title: {
+    template: "%s | MOOC Utils",
+    default: "MOOC Utils - AI-Powered NPTEL & SWAYAM Assignment Solver",
+  },
   description:
-    "Tools for MOOC learners: Get instant course notifications and AI-powered assignment help for NPTEL and SWAYAM courses.",
+    "Enhance your MOOC learning experience with MOOC Utils. Get AI-powered assignment help for NPTEL/SWAYAM and instant course notifications. The ultimate study companion for online learners.",
   keywords: [
     "MOOC",
     "NPTEL",
     "SWAYAM",
-    "course notifications",
-    "assignment helper",
-    "browser extension",
+    "NPTEL Assignment Solver",
+    "SWAYAM Assignment Helper",
+    "AI Assignment Solver",
+    "Course Notifications",
+    "MOOC Utils",
+    "Online Learning Tools",
+    "Study Companion",
+    "NPTEL Exam Preparation",
   ],
+  authors: [{ name: "Tashif Khan", url: "https://github.com/tashifkhan" }],
+  creator: "Tashif Khan",
+  publisher: "MOOC Utils",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: "MOOC Utils - Your MOOC Superpower Suite",
+    title: "MOOC Utils - AI-Powered NPTEL & SWAYAM Assignment Solver",
     description:
-      "Get instant course notifications and AI-powered assignment help for NPTEL and SWAYAM courses.",
+      "Get instant course notifications and AI-powered assignment help for NPTEL and SWAYAM courses. Ace your online certifications with ease.",
+    url: "https://mooc-utils.tashif.codes",
+    siteName: "MOOC Utils",
+    locale: "en_US",
     type: "website",
+  },
+  metadataBase: new URL("https://mooc-utils.tashif.codes"),
+  twitter: {
+    card: "summary_large_image",
+    title: "MOOC Utils - AI-Powered NPTEL & SWAYAM Assignment Solver",
+    description: "AI-powered assignment help and notifications for NPTEL & SWAYAM learners.",
+    creator: "@tashifkhan",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: "/logo.png",
   },
 };
 
