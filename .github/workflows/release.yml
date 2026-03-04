@@ -47,10 +47,10 @@ jobs:
           # Add a header based on component
           COMPONENT="${{ steps.check-tag.outputs.component }}"
           case $COMPONENT in
-            solver) HEADER="### 🚀 Assignment Solver Update" ;;
-            website) HEADER="### 🌐 Website Update" ;;
-            reminders) HEADER="### 🔔 Notice Reminders Update" ;;
-            *) HEADER="### 📦 Global Update" ;;
+            solver) HEADER="### Assignment Solver Update" ;;
+            website) HEADER="### Website Update" ;;
+            reminders) HEADER="### Notice Reminders Update" ;;
+            *) HEADER="### Global Update" ;;
           esac
 
           echo "notes<<EOF" >> $GITHUB_OUTPUT

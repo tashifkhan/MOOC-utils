@@ -35,8 +35,13 @@ async function generateNotes() {
     process.exit(0);
   }
 
-  const prompt = `You are a helpful release manager. Generate a professional and concise release note for the tag "${tag}" based on the following git commits.
-Group them into categories like "Features", "Fixes", and "Chore".
+  const prompt = `You are a professional release manager. Generate a clean and concise release note for the tag "${tag}" based on the following git commits.
+
+Strict Rules:
+1. Do NOT use any emojis.
+2. Group commits into categories: "Features", "Fixes", and "Maintenance".
+3. Use a professional, technical tone.
+4. If a commit is a "chore" or "refactor", put it under "Maintenance".
 
 Commits:
 ${diff}
