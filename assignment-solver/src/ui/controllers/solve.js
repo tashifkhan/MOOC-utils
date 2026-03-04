@@ -3,7 +3,7 @@
  */
 
 import { MESSAGE_TYPES, sendMessageWithRetry } from "../../core/messages.js";
-import { escapeHtml, formatQuestionType } from "../utils.js";
+import { escapeHtml } from "../utils.js";
 
 /**
  * Create solve controller
@@ -686,41 +686,87 @@ export function createSolveController({
         elements.resultsCount.textContent = `${questions.length} Qs`;
       }
 
+      const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+      /**
+       * @param {string} type
+       * @returns {string}
+       */
+      const formatType = (type) => {
+        if (type === "single_choice") return "SINGLE CHOICE";
+        if (type === "multi_choice") return "MULTI SELECT";
+        if (type === "fill_blank") return "FILL IN BLANK";
+        return (type || "QUESTION").toUpperCase();
+      };
+
       let html = "";
       questions.forEach((q, i) => {
         const confidence = q.answer.confidence || "medium";
+        const confidenceUpper = confidence.toUpperCase();
         const questionText = q.question || "";
-        const truncatedQuestion =
-          questionText.length > 150
-            ? questionText.substring(0, 150) + "..."
-            : questionText;
+        const choices = q.choices || [];
+        const answerOptionIds = q.answer.answer_option_ids || [];
+        const reasoning = q.answer.reasoning || "";
+        const qType = q.question_type || "single_choice";
+        const isChoiceType =
+          qType === "single_choice" || qType === "multi_choice";
 
-        html += `
-				<div class="result-item">
-					<div class="result-header">
-						<span class="result-number">Q${i + 1}</span>
-						<span class="result-type">${formatQuestionType(q.question_type)}</span>
-						<span class="result-confidence ${confidence}">${confidence}</span>
-					</div>
-					
-					<div class="result-question">
-						${escapeHtml(truncatedQuestion)}
-					</div>
-					
-					<div class="result-answer">
-						<strong>Ans:</strong> ${escapeHtml(q.answer.answer_text)}
-					</div>
-					
-					${
-            q.answer.reasoning
-              ? `
-					<div class="result-reasoning">
-						"${escapeHtml(q.answer.reasoning)}"
-					</div>`
-              : ""
-          }
-				</div>
-			`;
+        // ── Choices rows (MCQ / MSQ) ────────────────────────────
+        let choicesHtml = "";
+        if (isChoiceType && choices.length > 0) {
+          const rows = choices
+            .map((choice, ci) => {
+              const letter = LETTERS[ci] || String(ci + 1);
+              const isCorrect = answerOptionIds.includes(choice.option_id);
+              return `<div class="result-choice${isCorrect ? " result-choice--correct" : ""}">
+                <span class="result-choice-letter">${letter}</span>
+                <span class="result-choice-text">${escapeHtml(choice.text)}</span>
+                ${isCorrect ? '<span class="result-choice-check">✓</span>' : ""}
+              </div>`;
+            })
+            .join("");
+          choicesHtml = `<div class="result-choices">${rows}</div>`;
+        }
+
+        // ── Fill-blank answer ───────────────────────────────────
+        let fillHtml = "";
+        if (!isChoiceType || choices.length === 0) {
+          fillHtml = `<div class="result-fill-answer">
+            <span class="result-fill-label">ANSWER</span>
+            <span class="result-fill-text">${escapeHtml(q.answer.answer_text)}</span>
+          </div>`;
+        }
+
+        // ── AI Analysis box ─────────────────────────────────────
+        let analysisHtml = "";
+        if (reasoning) {
+          analysisHtml = `<div class="result-analysis">
+            <div class="result-analysis-header">
+              <span class="result-analysis-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              </span>
+              <span class="result-analysis-title">AI ANALYSIS</span>
+            </div>
+            <p class="result-analysis-body">${escapeHtml(reasoning)}</p>
+            <div class="result-analysis-tags">
+              <span class="result-tag">${confidenceUpper}</span>
+              <span class="result-tag">${formatType(qType)}</span>
+            </div>
+          </div>`;
+        }
+
+        html += `<div class="result-item">
+          <div class="result-meta">
+            <span class="result-meta-type">${formatType(qType)}</span>
+            <span class="result-meta-sep">·</span>
+            <span class="result-meta-num">Q${i + 1}</span>
+            <span class="result-conf result-conf--${confidence}">${confidenceUpper}</span>
+          </div>
+          <div class="result-question">Q${i + 1}. ${escapeHtml(questionText)}</div>
+          ${choicesHtml}
+          ${fillHtml}
+          ${analysisHtml}
+        </div>`;
       });
 
       if (elements.resultsList) {
