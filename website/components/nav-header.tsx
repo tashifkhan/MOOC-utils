@@ -4,19 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { Bell, Menu, X, LayoutDashboard, LogIn, LogOut } from "lucide-react";
+import { Puzzle, Menu, X } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useAuth } from "@/lib/auth-context";
-
-const navLinks = [
-  { href: "/notice-reminders", label: "Notice Reminders" },
-  { href: "/assignment-solver", label: "Assignment Solver" },
-];
 
 export function NavHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -29,82 +22,58 @@ export function NavHeader() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
-          : "bg-transparent"
+          ? "bg-background/85 backdrop-blur-xl border-b border-border/60 shadow-sm"
+          : "bg-transparent",
       )}
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 lg:px-8">
         <nav className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-chart-3 flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-white font-bold text-sm">M</span>
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
+              <span className="text-primary-foreground font-display font-bold text-sm leading-none">
+                M
+              </span>
             </div>
-            <span className="font-semibold text-lg tracking-tight">
+            <span className="font-display font-bold text-lg tracking-tight">
               MOOC Utils
             </span>
           </Link>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+            {/* Notice Reminders — Coming Soon */}
+            <div className="relative">
+              <span
+                className="px-3 py-2 text-sm text-muted-foreground/50 rounded-md cursor-not-allowed select-none inline-flex items-center gap-1.5"
+                aria-disabled="true"
+                title="Coming soon"
               >
-                {link.label}
-              </Link>
-            ))}
+                Notice Reminders
+                <span className="text-[9px] font-mono font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded uppercase tracking-wide leading-none">
+                  Soon
+                </span>
+              </span>
+            </div>
+
+            {/* Assignment Solver */}
+            <Link
+              href="/assignment-solver"
+              className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+            >
+              Assignment Solver
+            </Link>
           </div>
 
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-2">
             <ModeToggle />
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/notice-reminders/dashboard"
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "gap-1.5"
-                  )}
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
-                </Link>
-                <button
-                  onClick={logout}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "gap-1.5"
-                  )}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/notice-reminders/login"
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "sm" }),
-                  "gap-1.5"
-                )}
-              >
-                <LogIn className="w-4 h-4" />
-                Login
-              </Link>
-            )}
             <Link
-              href="/notice-reminders"
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                "gap-1.5"
-              )}
+              href="/assignment-solver"
+              className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}
             >
-              <Bell className="w-4 h-4" />
-              Subscribe
+              <Puzzle className="w-4 h-4" />
+              Get Extension
             </Link>
           </div>
 
@@ -127,70 +96,36 @@ export function NavHeader() {
       {mobileOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border/50 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="container mx-auto px-6 py-4 space-y-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {/* Notice Reminders — Coming Soon (mobile) */}
+            <div className="flex items-center justify-between px-3 py-2.5 text-sm text-muted-foreground/50 rounded-md cursor-not-allowed select-none">
+              <span>Notice Reminders</span>
+              <span className="text-[9px] font-mono font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded uppercase tracking-wide leading-none">
+                Soon
+              </span>
+            </div>
+
+            <Link
+              href="/assignment-solver"
+              onClick={() => setMobileOpen(false)}
+              className="block px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+            >
+              Assignment Solver
+            </Link>
+
             <div className="pt-3 border-t border-border/50 flex flex-col gap-2">
-               <div className="flex justify-end px-2">
-                 <ModeToggle />
-               </div>
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    href="/notice-reminders/dashboard"
-                    onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "sm" }),
-                      "w-full justify-center gap-1.5"
-                    )}
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setMobileOpen(false);
-                    }}
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "sm" }),
-                      "w-full justify-center gap-1.5"
-                    )}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/notice-reminders/login"
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "w-full justify-center gap-1.5"
-                  )}
-                >
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </Link>
-              )}
+              <div className="flex justify-end px-2">
+                <ModeToggle />
+              </div>
               <Link
-                href="/notice-reminders"
+                href="/assignment-solver"
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   buttonVariants({ size: "sm" }),
-                  "w-full justify-center gap-1.5"
+                  "w-full justify-center gap-1.5",
                 )}
               >
-                <Bell className="w-4 h-4" />
-                Subscribe
+                <Puzzle className="w-4 h-4" />
+                Get Extension
               </Link>
             </div>
           </div>

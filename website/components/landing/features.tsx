@@ -1,113 +1,141 @@
 import { Bell, Puzzle, Zap, Shield, Search, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-const features = [
+const assignmentFeatures = [
   {
-    category: "Notice Reminders",
-    accent: "from-chart-1 to-chart-3",
-    items: [
-      {
-        icon: <Search className="w-5 h-5" />,
-        title: "Course Discovery",
-        description: "Search thousands of SWAYAM/NPTEL courses instantly",
-      },
-      {
-        icon: <Bell className="w-5 h-5" />,
-        title: "Smart Alerts",
-        description: "Get notified via email or Telegram when new announcements drop",
-      },
-      {
-        icon: <Clock className="w-5 h-5" />,
-        title: "Deadline Tracking",
-        description: "Never miss assignment deadlines or exam dates",
-      },
-    ],
+    icon: <Puzzle className="w-5 h-5" />,
+    title: "One-Click Analysis",
+    description:
+      "Analyse MCQ questions directly on the assignment page without leaving your browser.",
   },
   {
-    category: "Assignment Solver",
-    accent: "from-chart-4 to-chart-5",
-    items: [
-      {
-        icon: <Puzzle className="w-5 h-5" />,
-        title: "One-Click Analysis",
-        description: "Analyze MCQ questions directly on the assignment page",
-      },
-      {
-        icon: <Zap className="w-5 h-5" />,
-        title: "AI-Powered Help",
-        description: "Get explanations and hints powered by Gemini AI",
-      },
-      {
-        icon: <Shield className="w-5 h-5" />,
-        title: "Privacy First",
-        description: "Your API key stays local. No data collection.",
-      },
-    ],
+    icon: <Zap className="w-5 h-5" />,
+    title: "AI-Powered Hints",
+    description:
+      "Get explanations and hints powered by Gemini AI. Understand the why, not just the answer.",
+  },
+  {
+    icon: <Shield className="w-5 h-5" />,
+    title: "Privacy First",
+    description:
+      "Your Gemini API key stays local in your browser. Zero data sent to our servers.",
+  },
+];
+
+const noticeFeatures = [
+  {
+    icon: <Search className="w-5 h-5" />,
+    title: "Course Discovery",
+    description:
+      "Search thousands of SWAYAM/NPTEL courses and subscribe to the ones you're enrolled in.",
+  },
+  {
+    icon: <Bell className="w-5 h-5" />,
+    title: "Smart Alerts",
+    description:
+      "Get notified via email the moment new announcements drop for your courses.",
+  },
+  {
+    icon: <Clock className="w-5 h-5" />,
+    title: "Deadline Tracking",
+    description:
+      "Never miss an assignment submission or exam — reminders sent well in advance.",
   },
 ];
 
 export function Features() {
   return (
-    <section className="py-24 relative" id="features">
-      {/* Background accent */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-      </div>
-
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Everything you need to
-            <span className="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent"> succeed</span>
+    <section className="py-24 border-t border-border/50" id="features">
+      <div className="container mx-auto px-6 lg:px-8">
+        {/* Section header */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-px w-6 bg-primary shrink-0" />
+            <span className="font-mono text-[11px] text-primary uppercase tracking-[0.25em]">
+              Features
+            </span>
+          </div>
+          <h2 className="font-display text-4xl md:text-5xl font-bold leading-[0.95] tracking-tight max-w-xl">
+            Everything you need{" "}
+            <span className="italic text-muted-foreground font-normal">
+              to succeed.
+            </span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Two complementary tools designed specifically for MOOC learners
-          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          {features.map((section, sectionIndex) => (
-            <div key={section.category} className="space-y-6">
-              {/* Category header */}
-              <div className="flex items-center gap-3">
-                <div className={cn("w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center", section.accent)}>
-                  {sectionIndex === 0 ? (
-                    <Bell className="w-5 h-5 text-white" />
-                  ) : (
-                    <Puzzle className="w-5 h-5 text-white" />
-                  )}
-                </div>
-                <h3 className="text-xl font-semibold">{section.category}</h3>
+          {/* ── Assignment Solver features — ACTIVE ─────────────── */}
+          <div className="space-y-5">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-9 h-9 rounded-lg bg-chart-4/10 flex items-center justify-center">
+                <Puzzle className="w-4 h-4 text-chart-4" />
               </div>
+              <h3 className="font-semibold text-base">Assignment Solver</h3>
+              <span className="ml-auto text-[10px] font-mono text-chart-4 bg-chart-4/8 border border-chart-4/20 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                Active
+              </span>
+            </div>
 
-              {/* Feature cards */}
-              <div className="space-y-4">
-                {section.items.map((feature, index) => (
-                  <div
-                    key={feature.title}
-                    className="group p-5 rounded-xl bg-card/30 border border-border/50 hover:border-primary/20 hover:bg-card/50 transition-all duration-300"
-                    style={{
-                      animationDelay: `${(sectionIndex * 3 + index) * 100}ms`,
-                    }}
-                  >
-                    <div className="flex gap-4">
-                      <div className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-                        "bg-muted group-hover:bg-primary/10 text-muted-foreground group-hover:text-primary"
-                      )}>
-                        {feature.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-medium mb-1">{feature.title}</h4>
-                        <p className="text-sm text-muted-foreground">{feature.description}</p>
-                      </div>
+            <div className="space-y-3">
+              {assignmentFeatures.map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="group p-5 rounded-xl bg-card/50 border border-border/60 hover:border-chart-4/25 hover:bg-card transition-all duration-300"
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
+                  <div className="flex gap-4">
+                    <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center shrink-0 text-muted-foreground group-hover:bg-chart-4/10 group-hover:text-chart-4 transition-colors">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm mb-1">
+                        {feature.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* ── Notice Reminders features — COMING SOON ─────────── */}
+          <div className="space-y-5 grayscale opacity-50 pointer-events-none select-none">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Bell className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="font-semibold text-base">Notice Reminders</h3>
+              <span className="ml-auto text-[10px] font-mono text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded-full uppercase tracking-wide">
+                Coming Soon
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {noticeFeatures.map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="p-5 rounded-xl bg-card/40 border border-border/50"
+                  style={{ animationDelay: `${(index + 3) * 80}ms` }}
+                >
+                  <div className="flex gap-4">
+                    <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm mb-1">
+                        {feature.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

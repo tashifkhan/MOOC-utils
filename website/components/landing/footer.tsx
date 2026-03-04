@@ -1,87 +1,95 @@
 import Link from "next/link";
-import { Github, Heart, Twitter } from "lucide-react";
+import { Github } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-muted/30 border-t border-border/50">
-      <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand Column */}
+    <footer className="border-t border-border/50 bg-muted/20">
+      <div className="container mx-auto px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+          {/* Brand */}
           <div className="md:col-span-1 space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-chart-3 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">M</span>
+            <Link href="/" className="flex items-center gap-2.5 group w-fit">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
+                <span className="text-primary-foreground font-display font-bold text-sm leading-none">
+                  M
+                </span>
               </div>
-              <span className="font-semibold text-lg">MOOC Utils</span>
+              <span className="font-display font-bold text-lg tracking-tight">
+                MOOC Utils
+              </span>
             </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Open-source tools to help you succeed in your NPTEL and SWAYAM courses.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-[200px]">
+              Open-source tools to help you succeed in your NPTEL and SWAYAM
+              courses.
             </p>
-            <div className="flex items-center gap-4 pt-2">
-              <a
-                href="https://github.com/tashifkhan/MOOC-utils"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Github className="w-5 h-5" />
-                <span className="sr-only">GitHub</span>
-              </a>
-            </div>
+            <a
+              href="https://github.com/tashifkhan/MOOC-utils"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Github className="w-4 h-4" />
+              <span>View on GitHub</span>
+            </a>
           </div>
 
-          {/* Product Column */}
+          {/* Products */}
           <div>
-            <h3 className="font-semibold mb-4">Products</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
+            <h3 className="font-semibold text-sm mb-4 text-foreground">
+              Products
+            </h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/notice-reminders" className="hover:text-foreground transition-colors">
+                <span className="text-muted-foreground/50 cursor-not-allowed select-none inline-flex items-center gap-2">
                   Notice Reminders
-                </Link>
+                  <span className="text-[9px] font-mono font-bold bg-primary/12 text-primary px-1.5 py-0.5 rounded uppercase tracking-wide leading-none">
+                    Soon
+                  </span>
+                </span>
               </li>
               <li>
-                <Link href="/assignment-solver" className="hover:text-foreground transition-colors">
+                <Link
+                  href="/assignment-solver"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Assignment Solver
-                </Link>
-              </li>
-              <li>
-                <Link href="/notice-reminders/dashboard" className="hover:text-foreground transition-colors">
-                  Dashboard
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources Column */}
+          {/* Resources */}
           <div>
-            <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
+            <h3 className="font-semibold text-sm mb-4 text-foreground">
+              Resources
+            </h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <a 
-                  href="https://github.com/tashifkhan/MOOC-utils" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/tashifkhan/MOOC-utils"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   GitHub Repository
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://github.com/tashifkhan/MOOC-utils/issues" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/tashifkhan/MOOC-utils/issues"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Report an Issue
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://github.com/tashifkhan/MOOC-utils/releases" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/tashifkhan/MOOC-utils/releases"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Changelog
                 </a>
@@ -89,21 +97,26 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Community Column */}
+          {/* Community */}
           <div>
-            <h3 className="font-semibold mb-4">Community</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
+            <h3 className="font-semibold text-sm mb-4 text-foreground">
+              Community
+            </h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/#faq" className="hover:text-foreground transition-colors">
+                <Link
+                  href="/#faq"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
                   FAQ
                 </Link>
               </li>
               <li>
-                <a 
-                  href="https://github.com/tashifkhan/MOOC-utils/discussions" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/tashifkhan/MOOC-utils/discussions"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Discussions
                 </a>
@@ -112,16 +125,16 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MOOC Utils. Open source under MIT License.</p>
-          <p className="flex items-center gap-1.5">
-            Built with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" /> by 
-            <a 
-              href="https://github.com/tashifkhan" 
-              target="_blank" 
+        {/* Bottom bar */}
+        <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground font-mono">
+          <p>© {new Date().getFullYear()} MOOC Utils — MIT License</p>
+          <p>
+            Built by{" "}
+            <a
+              href="https://github.com/tashifkhan"
+              target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-foreground hover:underline"
+              className="text-foreground hover:underline underline-offset-2"
             >
               Tashif Khan
             </a>

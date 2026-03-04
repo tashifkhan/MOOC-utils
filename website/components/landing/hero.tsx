@@ -1,125 +1,252 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Bell, Puzzle, ArrowRight, Sparkles } from "lucide-react";
+import { Bell, Puzzle, ArrowRight, Zap, Lock } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Animated background */}
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Background */}
       <div className="absolute inset-0 -z-10">
-        {/* Gradient mesh */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,oklch(0.45_0.12_183/0.3),transparent)]" />
-        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-[radial-gradient(ellipse_60%_40%_at_70%_120%,oklch(0.35_0.08_280/0.15),transparent)]" />
-        
-        {/* Geometric decorations */}
-        <div className="absolute top-20 left-10 w-72 h-72 border border-primary/20 rounded-full animate-[spin_60s_linear_infinite]" />
-        <div className="absolute bottom-32 right-16 w-48 h-48 border border-primary/10 rotate-45 animate-[pulse_4s_ease-in-out_infinite]" />
-        <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-primary/40 rounded-full animate-[bounce_3s_ease-in-out_infinite]" />
-        <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-primary/30 rounded-full animate-[bounce_2s_ease-in-out_infinite_0.5s]" />
-        
-        {/* Grid pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.02]"
+        {/* Warm radial from top-right */}
+        <div className="absolute top-0 right-0 w-2/3 h-2/3 bg-[radial-gradient(ellipse_at_top_right,oklch(0.52_0.17_56/0.07),transparent_65%)]" />
+        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-[radial-gradient(ellipse_at_bottom_left,oklch(0.50_0.12_232/0.05),transparent_60%)]" />
+
+        {/* Dot grid */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `linear-gradient(oklch(0.7 0.12 183) 1px, transparent 1px),
-                              linear-gradient(90deg, oklch(0.7 0.12 183) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
+            backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
+            backgroundSize: "28px 28px",
           }}
         />
+
+        {/* Vertical rule */}
+        <div className="absolute inset-y-0 left-[9%] w-px bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
       </div>
 
-      <div className="container mx-auto px-6 py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Sparkles className="w-4 h-4" />
-            <span>Tools for MOOC learners</span>
+      <div className="container mx-auto px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[1fr_1.15fr] gap-12 xl:gap-24 items-center min-h-screen py-28 lg:py-32">
+          {/* ─── Left: Text ─────────────────────────────────────── */}
+          <div className="space-y-8 lg:pl-8">
+            {/* Eyebrow */}
+            <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-700">
+              <div className="h-px w-8 bg-primary shrink-0" />
+              <span className="font-mono text-[11px] text-primary uppercase tracking-[0.25em]">
+                Tools for MOOC Learners
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1
+              className="font-display font-bold leading-[0.9] tracking-tight animate-in fade-in slide-in-from-left-6 duration-700 delay-100"
+              style={{ fontSize: "clamp(3rem, 7vw, 5.5rem)" }}
+            >
+              <span className="block text-foreground">Ace every</span>
+              <span className="block italic text-primary">assignment.</span>
+              <span className="block text-foreground">Miss nothing.</span>
+            </h1>
+
+            {/* Subtext */}
+            <p className="text-base sm:text-lg text-muted-foreground max-w-sm leading-relaxed animate-in fade-in duration-700 delay-200">
+              Two precision tools for NPTEL &amp; SWAYAM students. AI-powered
+              assignment help in your browser, and smart course notifications.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+              <Link
+                href="/assignment-solver"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "group h-12 px-7 text-base gap-2.5"
+                )}
+              >
+                <Puzzle className="w-4 h-4" />
+                Download Extension
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+
+              {/* Notice Reminders — Coming Soon */}
+              <div className="relative group/soon inline-flex">
+                <div
+                  className={cn(
+                    buttonVariants({ size: "lg", variant: "outline" }),
+                    "h-12 px-7 text-base gap-2.5 cursor-not-allowed opacity-50 pointer-events-none select-none"
+                  )}
+                  aria-disabled="true"
+                >
+                  <Bell className="w-4 h-4" />
+                  Get Notifications
+                </div>
+                <span className="absolute -top-2.5 -right-2.5 bg-primary text-primary-foreground text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full leading-none shadow-sm">
+                  Soon
+                </span>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="flex items-center gap-8 pt-2 animate-in fade-in duration-700 delay-500">
+              <div>
+                <div className="font-display text-2xl font-bold leading-none">
+                  5k+
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Courses indexed
+                </div>
+              </div>
+              <div className="w-px h-8 bg-border" />
+              <div>
+                <div className="font-display text-2xl font-bold leading-none">
+                  Free
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Always open source
+                </div>
+              </div>
+              <div className="w-px h-8 bg-border" />
+              <div>
+                <div className="font-display text-2xl font-bold leading-none">
+                  MIT
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Licensed
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
-            <span className="block text-foreground">Your MOOC</span>
-            <span className="block bg-gradient-to-r from-primary via-chart-2 to-chart-1 bg-clip-text text-transparent">
-              Superpower Suite
-            </span>
-          </h1>
+          {/* ─── Right: Visual mockup ────────────────────────────── */}
+          <div className="relative hidden lg:block animate-in fade-in slide-in-from-right-8 duration-700 delay-400">
+            {/* Assignment Solver browser mockup */}
+            <div className="relative bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+              {/* Browser chrome */}
+              <div className="bg-muted/60 border-b border-border px-4 py-2.5 flex items-center gap-2.5">
+                <div className="flex gap-1.5 shrink-0">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-400/70" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/70" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400/70" />
+                </div>
+                <div className="flex-1 bg-background/70 rounded-md px-3 py-1 text-[11px] font-mono text-muted-foreground truncate">
+                  nptel.swayam.gov.in / week-8-assignment
+                </div>
+                <div className="shrink-0 w-7 h-5 bg-chart-4/15 border border-chart-4/30 rounded flex items-center justify-center">
+                  <Puzzle className="w-3 h-3 text-chart-4" />
+                </div>
+              </div>
 
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-            Two powerful tools to ace your online courses: instant assignment help 
-            and smart course notifications. Never miss a deadline again.
-          </p>
+              {/* Page content */}
+              <div className="p-6 space-y-5">
+                <div className="font-mono text-[10px] text-muted-foreground/70 uppercase tracking-wider">
+                  Week 8 · Programming Assignment · 10 Questions
+                </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-10 duration-700 delay-300">
-            <a
-              href="#signup"
-              className={cn(buttonVariants({ size: "lg" }), "group text-base px-8 h-12")}
-            >
-              <Bell className="w-5 h-5 mr-2" />
-              Get Notifications
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </a>
-            <a
-              href="#extension"
-              className={cn(buttonVariants({ size: "lg", variant: "outline" }), "text-base px-8 h-12")}
-            >
-              <Puzzle className="w-5 h-5 mr-2" />
-              Download Extension
-            </a>
+                {/* MCQ question */}
+                <div className="space-y-3">
+                  <p className="text-sm font-medium leading-relaxed">
+                    Q3. Which algorithm has the best average-case time
+                    complexity for sorting a large, random dataset?
+                  </p>
+                  <div className="space-y-2">
+                    {[
+                      { label: "A", text: "Bubble Sort — O(n²)", correct: false },
+                      { label: "B", text: "Merge Sort — O(n log n)", correct: true },
+                      { label: "C", text: "Counting Sort — O(n + k)", correct: false },
+                      { label: "D", text: "Insertion Sort — O(n²)", correct: false },
+                    ].map((opt) => (
+                      <div
+                        key={opt.label}
+                        className={cn(
+                          "text-xs px-3 py-2 rounded-lg border flex items-center gap-2.5",
+                          opt.correct
+                            ? "bg-chart-4/10 border-chart-4/40 text-chart-4 font-medium"
+                            : "bg-muted/30 border-border/40 text-muted-foreground"
+                        )}
+                      >
+                        <span className="font-mono text-[10px] opacity-60 shrink-0 w-4">
+                          {opt.label}.
+                        </span>
+                        {opt.text}
+                        {opt.correct && (
+                          <span className="ml-auto text-[9px] font-mono opacity-70">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI analysis panel */}
+                <div className="bg-primary/6 border border-primary/20 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center shrink-0">
+                      <Zap className="w-3 h-3 text-primary fill-primary" />
+                    </div>
+                    <span className="text-xs font-mono font-semibold text-primary uppercase tracking-wide">
+                      AI Analysis
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Merge Sort uses a divide-and-conquer approach, splitting the
+                    array in half recursively. Its O(n log n) complexity holds
+                    in all cases, making it reliable for large datasets...
+                  </p>
+                  <div className="flex gap-1.5 pt-0.5">
+                    {["Stability", "Divide & Conquer", "O(n log n)"].map(
+                      (tag) => (
+                        <span
+                          key={tag}
+                          className="text-[9px] font-mono bg-primary/10 text-primary/80 px-1.5 py-0.5 rounded"
+                        >
+                          {tag}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Coming Soon — Notice Reminders card */}
+            <div className="absolute -bottom-8 -left-10 w-58 bg-card border border-border/70 rounded-xl p-4 shadow-xl grayscale opacity-45 select-none pointer-events-none">
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <Bell className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Notice Reminders
+                  </span>
+                </div>
+                <Lock className="w-3 h-3 text-muted-foreground/50" />
+              </div>
+              <p className="text-[11px] text-muted-foreground/70 leading-tight mb-3">
+                NPTEL · Data Structures Week 9 quiz now open. Deadline in 3
+                days.
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-px bg-muted-foreground/20" />
+                <span className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-widest shrink-0">
+                  Coming Soon
+                </span>
+                <div className="flex-1 h-px bg-muted-foreground/20" />
+              </div>
+            </div>
+
+            {/* Decorative blurs */}
+            <div className="absolute -top-8 -right-8 w-64 h-64 bg-primary/6 rounded-full blur-3xl -z-10" />
+            <div className="absolute -bottom-16 right-10 w-40 h-40 bg-chart-4/6 rounded-full blur-2xl -z-10" />
           </div>
-        </div>
-
-        {/* Feature preview cards */}
-        <div className="mt-24 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-12 duration-700 delay-500">
-          <FeaturePreview
-            icon={<Bell className="w-6 h-6" />}
-            title="Notice Reminders"
-            description="Subscribe to courses and get instant alerts for announcements, deadlines, and updates."
-            accent="from-chart-1 to-chart-3"
-          />
-          <FeaturePreview
-            icon={<Puzzle className="w-6 h-6" />}
-            title="Assignment Solver"
-            description="Browser extension that helps you understand and solve NPTEL assignments with AI assistance."
-            accent="from-chart-4 to-chart-5"
-          />
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-2">
-          <div className="w-1.5 h-2.5 bg-muted-foreground/50 rounded-full animate-[pulse_1.5s_ease-in-out_infinite]" />
+      {/* Scroll cue */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+        <div className="w-5 h-8 rounded-full border border-muted-foreground/40 flex items-start justify-center p-1.5">
+          <div className="w-1 h-1.5 bg-muted-foreground/60 rounded-full animate-[bounce_1.8s_ease-in-out_infinite]" />
         </div>
       </div>
     </section>
-  );
-}
-
-function FeaturePreview({
-  icon,
-  title,
-  description,
-  accent,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  accent: string;
-}) {
-  return (
-    <div className="group relative p-6 rounded-2xl bg-card/50 border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
-      {/* Gradient accent line */}
-      <div className={cn("absolute top-0 left-6 right-6 h-px bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity", accent)} />
-      
-      <div className={cn("w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center text-white mb-4", accent)}>
-        {icon}
-      </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
-    </div>
   );
 }
