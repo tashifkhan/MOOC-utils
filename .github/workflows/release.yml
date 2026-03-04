@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'solver-v*'
+      - 'website-v*'
+      - 'reminders-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    name: Prepare Release Notes
+    runs-on: ubuntu-latest
+    outputs:
+      notes: ${{ steps.gemini.outputs.notes }}
+      component: ${{ steps.check-tag.outputs.component }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Tag Type
+        id: check-tag
+        run: |
+          TAG=${{ github.ref_name }}
+          if [[ $TAG == solver-v* ]]; then
+            echo "component=solver" >> $GITHUB_OUTPUT
+          elif [[ $TAG == website-v* ]]; then
+            echo "component=website" >> $GITHUB_OUTPUT
+          elif [[ $TAG == reminders-v* ]]; then
+            echo "component=reminders" >> $GITHUB_OUTPUT
+          else
+            echo "component=all" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate Notes with Gemini
+        id: gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+        run: |
+          RAW_NOTES=$(node .github/scripts/generate-notes.js)
+          # Add a header based on component
+          COMPONENT="${{ steps.check-tag.outputs.component }}"
+          case $COMPONENT in
+            solver) HEADER="### 🚀 Assignment Solver Update" ;;
+            website) HEADER="### 🌐 Website Update" ;;
+            reminders) HEADER="### 🔔 Notice Reminders Update" ;;
+            *) HEADER="### 📦 Global Update" ;;
+          esac
+          
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$HEADER" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "$RAW_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  build-extension:
+    name: Build Browser Extension
+    needs: prepare
+    if: needs.prepare.outputs.component == 'solver' || needs.prepare.outputs.component == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      
+      - name: Install & Lint
+        working-directory: assignment-solver
+        run: |
+          bun install
+          bun run lint
+        
+      - name: Build
+        working-directory: assignment-solver
+        run: bun run build
+        
+      - name: Zip Artifacts
+        run: |
+          cd assignment-solver/dist/chrome && zip -r ../../../nptel-solver-chrome.zip .
+          cd ../firefox && zip -r ../../../nptel-solver-firefox.zip .
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-builds
+          path: nptel-solver-*.zip
+
+  create-release:
+    name: Create GitHub Release
+    needs: [prepare, build-extension]
+    # Ensure it runs even if build-extension is skipped (for website/reminders tags)
+    if: always() && needs.prepare.result == 'success' && (needs.build-extension.result == 'success' || needs.build-extension.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Download Extension Artifacts
+        if: needs.prepare.outputs.component == 'solver' || needs.prepare.outputs.component == 'all'
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-builds
+          path: release-artifacts
+        continue-on-error: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: ${{ needs.prepare.outputs.notes }}
+          files: |
+            release-artifacts/*.zip
+          generate_release_notes: false
+          draft: false
+          prerelease: false
