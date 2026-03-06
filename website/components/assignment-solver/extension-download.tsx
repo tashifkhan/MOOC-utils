@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 
 // These should be replaced with actual store URLs when published
-const CHROME_STORE_URL = "#"; // Will be the Chrome Web Store URL
+const CHROME_STORE_URL = "https://chromewebstore.google.com/detail/nptel-assignment-solver/igfhmjmdpfbbpbbmfnngjnoggdeedfdd";
 const FIREFOX_STORE_URL = "#"; // Will be the Firefox Add-ons URL
 const GITHUB_RELEASES_URL = "https://github.com/tashifkhan/MOOC-utils/releases";
 
@@ -39,7 +39,7 @@ export function ExtensionDownload() {
             store="Chrome Web Store"
             description="For Chrome, Edge, Brave, and Chromium browsers"
             url={CHROME_STORE_URL}
-            available={false}
+            available={true}
           />
           <StoreCard
             icon={<Globe className="w-8 h-8" />}
