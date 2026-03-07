@@ -29,15 +29,21 @@ export function createSettingsController({ elements, storage, logger = null }) {
         elements.extractionModelSelect.value = prefs.extractionModel;
       }
       if (elements.extractionReasoningSelect) {
-        elements.extractionReasoningSelect.value =
-          prefs.extractionReasoningLevel || "high";
+        elements.extractionReasoningSelect.value = prefs.extractionReasoningLevel || "high";
+        const extOpt = elements.extractionReasoningSelect.options[elements.extractionReasoningSelect.selectedIndex];
+        if (extOpt && elements.extractionReasoningSelect.previousElementSibling) {
+          elements.extractionReasoningSelect.previousElementSibling.textContent = extOpt.text === "No Reasoning" ? "None" : extOpt.text;
+        }
       }
       if (elements.solvingModelSelect) {
         elements.solvingModelSelect.value = prefs.solvingModel;
       }
       if (elements.solvingReasoningSelect) {
-        elements.solvingReasoningSelect.value =
-          prefs.solvingReasoningLevel || "high";
+        elements.solvingReasoningSelect.value = prefs.solvingReasoningLevel || "high";
+        const solveOpt = elements.solvingReasoningSelect.options[elements.solvingReasoningSelect.selectedIndex];
+        if (solveOpt && elements.solvingReasoningSelect.previousElementSibling) {
+          elements.solvingReasoningSelect.previousElementSibling.textContent = solveOpt.text === "No Reasoning" ? "None" : solveOpt.text;
+        }
       }
       if (elements.settingsModal) {
         elements.settingsModal.classList.remove("hidden");
@@ -81,7 +87,7 @@ export function createSettingsController({ elements, storage, logger = null }) {
       await storage.saveModelPreferences({
         extractionModel: extractionModel || "gemini-2.5-flash",
         extractionReasoningLevel: extractionReasoning || "high",
-        solvingModel: solvingModel || "gemini-3.1-pro-preview",
+        solvingModel: solvingModel || "gemini-3-flash-preview",
         solvingReasoningLevel: solvingReasoning || "high",
       });
       return true;
@@ -93,6 +99,18 @@ export function createSettingsController({ elements, storage, logger = null }) {
     initEventListeners(callbacks) {
       elements.settingsBtn?.addEventListener("click", () => this.show());
       elements.closeSettingsBtn?.addEventListener("click", () => this.hide());
+      if (elements.extractionReasoningSelect) {
+        elements.extractionReasoningSelect.addEventListener("change", (e) => {
+          const text = e.target.options[e.target.selectedIndex].text;
+          if(e.target.previousElementSibling) e.target.previousElementSibling.textContent = text === "No Reasoning" ? "None" : text;
+        });
+      }
+      if (elements.solvingReasoningSelect) {
+        elements.solvingReasoningSelect.addEventListener("change", (e) => {
+          const text = e.target.options[e.target.selectedIndex].text;
+          if(e.target.previousElementSibling) e.target.previousElementSibling.textContent = text === "No Reasoning" ? "None" : text;
+        });
+      }
 
       elements.saveSettingsBtn?.addEventListener("click", async () => {
         if (await this.save()) {
