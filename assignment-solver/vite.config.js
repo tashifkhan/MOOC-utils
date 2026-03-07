@@ -20,7 +20,10 @@ function generateManifestPlugin(browser) {
 			// Generate manifest will be written in writeBundle
 		},
 		writeBundle(options) {
-			const manifest = generateManifest(browser);
+			const manifest = generateManifest(
+				browser,
+				process.env.npm_package_version || "1.0.0",
+			);
 			const manifestPath = path.join(options.dir, "manifest.json");
 			fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 			console.log(`Generated manifest.json for ${browser}`);

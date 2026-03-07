@@ -8,9 +8,10 @@ const FIREFOX_ADDON_ID = "mooc-utils@tashif.codes";
 /**
  * Generate manifest based on browser target
  * @param {string} browser - "chrome" or "firefox"
+ * @param {string} version - Extension version
  * @returns {object} Manifest object
  */
-export function generateManifest(browser) {
+export function generateManifest(browser, version = "1.0.0") {
 	const isFirefox = browser === "firefox";
 	const isChrome = browser === "chrome";
 
@@ -18,7 +19,7 @@ export function generateManifest(browser) {
 	const baseManifest = {
 		manifest_version: 3,
 		name: "NPTEL Assignment Solver",
-		version: "1.0.0",
+		version,
 		description: "AI-powered assignment solver for NPTEL courses using Gemini",
 
 		permissions: ["activeTab", "tabs", "storage", "scripting"],
