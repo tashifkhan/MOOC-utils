@@ -173,7 +173,7 @@ assignment-solver/
          ▼
 ┌─────────────────┐
 │   Gemini API    │
-│ (gemini-2.5-pro)|
+│ (gemini-3-flash)|
 └─────────────────┘
 ```
 
@@ -247,7 +247,7 @@ assignment-solver/
 
 ### Model Selection
 
-- Default: `gemini-2.5-pro`
+- Default: `gemini-3-flash-preview`
 - Can be changed in `src/services/gemini/index.js`
 
 ### Rate Limiting

@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "NPTEL Assignment Solver",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Extract NPTEL assignment questions and get AI-powered study hints",
 	"permissions": ["activeTab", "tabs", "storage", "sidePanel", "scripting"],
 	"host_permissions": [
