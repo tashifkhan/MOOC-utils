@@ -19,8 +19,7 @@ A browser extension that uses Google's Gemini AI to extract, analyze, and solve 
 - [x] Firefox Support
 - [x] Modular Build System
 - [x] Add Gemini Model Selector
-- [ ] Better UI maybe (this gemini generated one works fine ig but lets see)
-
+> [?] Better UI maybe
 ## Prerequisites
 
 - [Bun](https://bun.sh/) package manager
